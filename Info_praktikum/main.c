@@ -129,12 +129,16 @@ void tim12_init(void) 	// initialize timer (TIM12)
 	TIM12->CCER |= 1;						// activate enable register TIM12_CCER
 	TIM12->CCER &= ~(0x000Au); 	// Set CC1NP and CC1P to 0, get reaction on rising edge 
 	TIM12->DIER |= (1<<1);			// activate capture interrupt
+	TIM12->EGR = 1;				// enable update event
 	
 	GPIOB->MODER |= (1<< 29);		// set Pin PB14 
 	GPIOB->MODER &= ~(1u<<28);  // to Alternate Function Mode
 	
-	GPIOB->AFRH &= ~(0x0F000000);			// 
-	GPIOB->AFRH |= (1<<27) | (1<<24); // Alternate Funktion 9, TIM12 Channel 1
+	GPIOB->AFR[1] &= ~(0x0F000000);			// 
+	GPIOB->AFR[1] |= (1<<27) | (1<<24); // Alternate Funktion 9, TIM12 Channel 1
+
+	NVIC_SetPriority(TIM8_BRK_TIM12_IRQHandler, 2);	// Set Priority
+	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// Enable IRQ Handler call
 }
 
 //###############################################
