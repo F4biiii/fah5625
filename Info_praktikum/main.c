@@ -16,9 +16,10 @@ void u_delay(uint32_t usec);
 void LED_blinky(void);
 void LEDs_runningLight(void);
 void tim7_init(void);
-void tim12_init(void);
+void tim12_init_capture(void);
 void TIM7_IRQHandler(void);
 void TIM8_BRK_TIM12_IRQHandler(void);
+uint32_t tim12_capture_getticks(void);
 
 //############################################### 
 // global variables
@@ -29,8 +30,8 @@ static uint32_t s = 0;      				// count seconds
 
 static uint16_t flag_greenLED = 0;	// greenLED on or off
 
-static uint16_t tc1; 								// remember count of last rising edge (Timer12 measure frequency)
-static uint16_t deltaT;							// save the passed time between two rising edges;
+static uint16_t tim12_last_capture; 		// remember count of last rising edge (Timer12 measure frequency)
+static uint16_t tim12_deltat;						// save the passed time between two rising edges 16bit;	
 
 //###############################################
 //	functions
@@ -91,12 +92,12 @@ void u_delay(uint32_t usec)			// causes a delay
 	}
 }
 
-void LEDs_runningLight(void)
+void LEDs_runningLight(void)	// causes a running light on the 16 LEDs
 {
-    static uint16_t i = 0;		// safe the LED position
+    static uint16_t i = 0;			// safe the LED position
 
-    if(i < 16) {							// first animation, run single LED
-        LEDs_Write(1 << i);  		// move the single 1 over the 16 bits
+    if(i < 16) {								// first animation, run single LED
+        LEDs_Write(1 << i);  			// move the single 1 over the 16 bits
         i++;
     }
     else if(i < 32) {									// first animation done, keep counting to run single 0
@@ -115,30 +116,33 @@ void tim7_init(void)		// initialize timer (TIM7)
 	TIM7->ARR = 999;									// counts to 1000
 	TIM7->DIER |= 1;									// activate interrupt
 	TIM7->CR1 |= 1;										// timer go
-	NVIC_EnableIRQ(TIM7_IRQn); 				// activate NVIC Interrupt IRQ_Handler
+	
 	NVIC_SetPriority(TIM7_IRQn, 1); 	// set priority 
+	NVIC_EnableIRQ(TIM7_IRQn); 				// activate NVIC Interrupt IRQ_Handler
+	
 }
 
-void tim12_init(void) 	// initialize timer (TIM12)
+void tim12_init_capture(void) 	// initialize timer (TIM12)
 {
-	RCC->APB1ENR |= (1<<6);			// activate Timer 12 Peripheral
-	TIM12->PSC = 0;							// set prescaler to 0
-	TIM12->ARR = 0xFFFF;				// set auto reload register to maximum
+	RCC->APB1ENR |= (1<<6);					// activate Timer 12 Peripheral
+	TIM12->PSC = 0;									// set prescaler to 0
+	TIM12->ARR = 0xFFFF;						// set auto reload register to maximum
+	TIM12->CR1 = 1;									// timer go
 	
-	TIM12->CCMR1 |= 1;					// Select channel 1 (IC1F: 0000), no prescaler (IC1PSC: 00), Selection to input TIy-ICy: (CC1S: 01)
-	TIM12->CCER |= 1;						// activate enable register TIM12_CCER
-	TIM12->CCER &= ~(0x000Au); 	// Set CC1NP and CC1P to 0, get reaction on rising edge 
-	TIM12->DIER |= (1<<1);			// activate capture interrupt
-	TIM12->EGR = 1;				// enable update event
+	TIM12->CCMR1 = 1;								// Select channel 1 (IC1F: 0000), no prescaler (IC1PSC: 00), Selection to input TIy-ICy: (CC1S: 01)
+	TIM12->CCER = 1;								// activate enable register TIM12_CCER
+	TIM12->CCER &= ~(0x000Au); 			// Set CC1NP and CC1P to 0, get reaction on rising edge 
+	TIM12->DIER = 3;								// activate update interrupt and capture interrupt to channel 1
 	
-	GPIOB->MODER |= (1<< 29);		// set Pin PB14 
-	GPIOB->MODER &= ~(1u<<28);  // to Alternate Function Mode
-	
-	GPIOB->AFR[1] &= ~(0x0F000000);			// 
-	GPIOB->AFR[1] |= (1<<27) | (1<<24); // Alternate Funktion 9, TIM12 Channel 1
+	GPIOB->MODER |= (1<< 29);				// set Pin PB14 
+	GPIOB->MODER &= ~(1u<<28);  		// to Alternate Function Mode (10)
+	GPIOB->AFR[1] = (9 << 24);  		// set PB14 to Alternate Funktion 9, TIM12 Channel 1
 
-	NVIC_SetPriority(TIM8_BRK_TIM12_IRQHandler, 2);	// Set Priority
-	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// Enable IRQ Handler call
+	tim12_last_capture = 0;								
+	TIM12->SR = 0;	
+	
+	NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 2);	// set priority
+	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// activate NVIC Interrupt IRQ_Handler
 }
 
 //###############################################
@@ -188,12 +192,19 @@ void TIM7_IRQHandler(void)
 	}
 }
 
-void TIM8_BRK_TIM12_IRQHandler(void) 
+void TIM8_BRK_TIM12_IRQHandler(void) 						
 {
-	uint16_t tc2;					
-	tc2 = TIM12->CCR1;									// get time of rising edge
-	deltaT = tc2-tc1;										// get time between last two rising edges
-	tc1 = tc2;													// save time of latest rising edge
+	uint16_t status = TIM12->SR;
+	if(status & TIM_SR_CC1IF) {											// is the interrupt a capture interrupt?
+		uint16_t capture = TIM12->CCR1;									// get time of rising edge
+		tim12_deltat = capture - tim12_last_capture;		// calculate time between last two rising edges
+		tim12_last_capture = capture;										// save time of latest rising edge
+	}
+}
+
+uint32_t tim12_capture_getticks(void)
+{
+	return (uint32_t) tim12_deltat;
 }
 
 //###############################################
@@ -206,40 +217,46 @@ int main(void)
 	
 	LEDs_InitPorts();											// initialise the required ports
 	tim7_init();													// initialize timer 7
-	tim12_init();													// initialize timer 12
+	tim12_init_capture();									// initialize timer 12
 	LCD_Init();														// initialize display
 	GPIOD->ODR &= ~(1UL << 13);						// turn off display
 
 	uint32_t init_ms;											// saves content of ms at start of main loop
 	
-	char str1[50];												// array for time output string
-	char str2[50];												// array for frequency output string
+	char buf[30];												// array for output string
 
 	
 	while ( 1 ) {													// main loop
 		init_ms = ms;													// remember ms at start of main loop
 		
-		sprintf(str1, "%u seconds", s);									// update time output string 
-		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, str1);	// output elapsed seconds(display) 
+		snprintf(buf, 30, "%u seconds", s);							// update time output string 
+		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, buf);	// output elapsed seconds(display) 
 		
-		uint32_t frequency = (1/deltaT);				
-		sprintf(str2, "%u Hertz", frequency);						// update frequency output string
-		LCD_WriteString( 10, 30, 0xFFFF, 0x0000, str2); // output frequency(display)
-		
-		if( (GPIOA->IDR & 1) != 0) {			 	// is button pressed?
-			
-			if(flag_greenLED) {								// shall green LED be on or off? (flag switches every 500ms)
-				GPIOD->ODR |= 1 << 12;						// turn on green LED
-			} else {
-				GPIOD->ODR &= ~(1UL << 12);				// turn off green LED
-			}
-		
-		} else {														// button is not pressed
-				GPIOD->ODR &= ~(1UL << 12);				// turn off green LED		
+		uint32_t ticks = tim12_capture_getticks();			// get time of recent period
+		if( ticks > 0) {																// is there anything to do?
+			uint32_t freq;													
+			snprintf(buf, 30, "%d ticks", ticks);						// output recend period
+			LCD_WriteString(10, 50, 0xFFFF, 0x0000, buf);		//
+			freq = 84000000/ticks;													// calculate frequency in Hertz
+			snprintf(buf, 30, "%d Hz", freq);								// output calculated frequency
+			LCD_WriteString(10, 70, 0xFFFF, 0x0000, buf );	//
+			tim12_init_capture();														// reinitialize all
 		}
 		
-		while(ms < (init_ms + 50)) {				// until 50ms have passed
-			__NOP();														// do nothing
+		if( (GPIOA->IDR & 1) != 0) {			 		// is button pressed?
+			
+			if(flag_greenLED) {									// shall green LED be on or off? (flag switches every 500ms)
+				GPIOD->ODR |= 1 << 12;							// turn on green LED
+			} else {
+				GPIOD->ODR &= ~(1UL << 12);					// turn off green LED
+			}
+		
+		} else {															// button is not pressed
+				GPIOD->ODR &= ~(1UL << 12);					// turn off green LED		
+		}
+		
+		while(ms < (init_ms + 50)) {					// until 50ms have passed
+			__NOP();															// do nothing
 		}
 	}
 }
