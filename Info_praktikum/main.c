@@ -31,7 +31,8 @@ static uint32_t s = 0;      				// count seconds
 static uint16_t flag_greenLED = 0;	// greenLED on or off
 
 static uint16_t tim12_last_capture; 		// remember count of last rising edge (Timer12 measure frequency)
-static uint16_t tim12_deltat;						// save the passed time between two rising edges 16bit;	
+static uint16_t tim12_deltat;						// save the passed time between two rising edges 16bit;
+static uint16_t tim12_firstEdge;	
 
 //###############################################
 //	functions
@@ -138,7 +139,8 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	GPIOB->MODER &= ~(1u<<28);  		// to Alternate Function Mode (10)
 	GPIOB->AFR[1] = (9 << 24);  		// set PB14 to Alternate Funktion 9, TIM12 Channel 1
 
-	tim12_last_capture = 0;								
+	tim12_last_capture = 0;		
+	tim12_firstEdge = 0;						
 	TIM12->SR = 0;	
 	
 	NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 2);	// set priority
@@ -195,11 +197,12 @@ void TIM7_IRQHandler(void)
 void TIM8_BRK_TIM12_IRQHandler(void) 						
 {
 	uint16_t status = TIM12->SR;
-	if(status & TIM_SR_CC1IF) {											// is the interrupt a capture interrupt?
+	if( (status & TIM_SR_CC1IF) && tim12_firstEdge) {											// is the interrupt a capture interrupt? is it at least the second flag?
 		uint16_t capture = TIM12->CCR1;									// get time of rising edge
 		tim12_deltat = capture - tim12_last_capture;		// calculate time between last two rising edges
 		tim12_last_capture = capture;										// save time of latest rising edge
 	}
+	tim12_firstEdge = 1;
 }
 
 uint32_t tim12_capture_getticks(void)
