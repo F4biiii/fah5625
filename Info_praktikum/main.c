@@ -132,7 +132,7 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	TIM12->CCMR1 = 1;								// Select channel 1 (IC1F: 0000), no prescaler (IC1PSC: 00), Selection to input TIy-ICy: (CC1S: 01)
 	TIM12->CCER = 1;								// activate enable register TIM12_CCER
 	TIM12->CCER &= ~(0x000Au); 			// Set CC1NP and CC1P to 0, get reaction on rising edge 
-	TIM12->DIER = 3;								// activate update interrupt and capture interrupt to channel 1
+	TIM12->DIER = 2;								// activate capture interrupt to channel 1
 	
 	GPIOB->MODER |= (1<< 29);				// set Pin PB14 
 	GPIOB->MODER &= ~(1u<<28);  		// to Alternate Function Mode (10)
