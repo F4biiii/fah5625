@@ -139,12 +139,17 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	GPIOB->MODER &= ~(1u<<28);  		// to Alternate Function Mode (10)
 	GPIOB->AFR[1] = (9 << 24);  		// set PB14 to Alternate Funktion 9, TIM12 Channel 1
 
-	tim12_last_capture = 0;		
-	tim12_firstEdge = 0;						
-	TIM12->SR = 0;	
+	tim12_last_capture = 0;					// reset count of last capture
+	tim12_firstEdge = 0;						// reset flag of first edge
+	TIM12->SR = 0;									// reset interrupt status register
 	
 	NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 2);	// set priority
 	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// activate NVIC Interrupt IRQ_Handler
+}
+
+uint32_t tim12_capture_getticks(void)
+{
+	return (uint32_t) tim12_deltat;
 }
 
 //###############################################
@@ -197,17 +202,12 @@ void TIM7_IRQHandler(void)
 void TIM8_BRK_TIM12_IRQHandler(void) 						
 {
 	uint16_t status = TIM12->SR;
-	if( (status & TIM_SR_CC1IF) && tim12_firstEdge) {											// is the interrupt a capture interrupt? is it at least the second flag?
+	if( (status & TIM_SR_CC1IF) && tim12_firstEdge) {	// is the interrupt a capture interrupt? is it at least the second flag?
 		uint16_t capture = TIM12->CCR1;									// get time of rising edge
 		tim12_deltat = capture - tim12_last_capture;		// calculate time between last two rising edges
 		tim12_last_capture = capture;										// save time of latest rising edge
 	}
 	tim12_firstEdge = 1;
-}
-
-uint32_t tim12_capture_getticks(void)
-{
-	return (uint32_t) tim12_deltat;
 }
 
 //###############################################
@@ -226,23 +226,26 @@ int main(void)
 
 	uint32_t init_ms;											// saves content of ms at start of main loop
 	
-	char buf[30];												// array for output string
+	char str[30];												// array for output string
 
 	
 	while ( 1 ) {													// main loop
 		init_ms = ms;													// remember ms at start of main loop
 		
-		snprintf(buf, 30, "%u seconds", s);							// update time output string 
-		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, buf);	// output elapsed seconds(display) 
+		snprintf(str, 30, "%u seconds", s);							// update time output string 
+		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, str);	// output elapsed seconds(display) 
 		
 		uint32_t ticks = tim12_capture_getticks();			// get time of recent period
-		if( ticks > 0) {																// is there anything to do?
-			uint32_t freq;													
-			snprintf(buf, 30, "%d ticks", ticks);						// output recend period
-			LCD_WriteString(10, 50, 0xFFFF, 0x0000, buf);		//
-			freq = 84000000/ticks;													// calculate frequency in Hertz
-			snprintf(buf, 30, "%d Hz", freq);								// output calculated frequency
-			LCD_WriteString(10, 70, 0xFFFF, 0x0000, buf );	//
+		if(ticks > 0) {																	// is there anything to do?											
+			
+			snprintf(str, 30, "%d ticks", ticks);						// output recend period
+			LCD_WriteString(10, 50, 0xFFFF, 0x0000, str);		//
+			
+			uint32_t frequency;		
+			frequency = (1/ticks) * 84000000;								// calculate frequency in Hertz
+			snprintf(str, 30, "%d Hz", frequency);					// output calculated frequency
+			LCD_WriteString(10, 70, 0xFFFF, 0x0000, str );	//
+			
 			tim12_init_capture();														// reinitialize all
 		}
 		
