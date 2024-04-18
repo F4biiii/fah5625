@@ -120,7 +120,8 @@ void tim7_init(void)		// initialize timer (TIM7)
 	TIM7->CR1 |= 1;										// timer go
 	
 	NVIC_SetPriority(TIM7_IRQn, 1); 	// set priority 
-	NVIC_EnableIRQ(TIM7_IRQn); 				// activate NVIC Interrupt IRQ_Handler
+	NVIC_EnableIRQ(TIM7_IRQn); 				// activate NVIC Interrupt IRQ_Handle
+
 	
 }
 
@@ -146,6 +147,7 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	
 	NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 2);	// set priority
 	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// activate NVIC Interrupt IRQ_Handler
+
 }
 
 uint32_t tim12_capture_getticks(void)
@@ -195,7 +197,7 @@ void TIM7_IRQHandler(void)
 	}
 	
 	if(cnt_display >= 10000) {				// did count reach 10000ms (10s)
-		GPIOD->ODR &= ~(1UL << 13);				// turn off display
+		//GPIOD->ODR &= ~(1UL << 13);				// turn off display
 		cnt_display = 0;									// reset count
 	}
 }
@@ -209,6 +211,7 @@ void TIM8_BRK_TIM12_IRQHandler(void)
 		tim12_last_capture = capture;										// save time of latest rising edge
 	}
 	tim12_firstEdge = 1;
+
 }
 
 //###############################################
@@ -223,32 +226,32 @@ int main(void)
 	tim7_init();													// initialize timer 7
 	tim12_init_capture();									// initialize timer 12
 	LCD_Init();														// initialize display
+	LCD_ClearDisplay( 0xFE00 );						// clear display
 	GPIOD->ODR &= ~(1UL << 13);						// turn off display
 
 	uint32_t init_ms;											// saves content of ms at start of main loop
 	
 	char str[30];												// array for output string
+	char str1[30];												// array for output string
+	char str2[30];												// array for output string
 
 	
 	while ( 1 ) {													// main loop
 		init_ms = ms;													// remember ms at start of main loop
-		
 		snprintf(str, 30, "%u seconds", s);							// update time output string 
 		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, str);	// output elapsed seconds(display) 
 		
 		uint32_t ticks = tim12_capture_getticks();			// get time of recent period
-		if(ticks > 0) {																	// is there anything to do?											
 			
-			snprintf(str, 30, "%d ticks", ticks);						// output recend period
-			LCD_WriteString(10, 50, 0xFFFF, 0x0000, str);		//
-			
-			uint32_t frequency;		
-			frequency = (1/ticks) * 84000000;								// calculate frequency in Hertz
-			snprintf(str, 30, "%d Hz", frequency);					// output calculated frequency
-			LCD_WriteString(10, 70, 0xFFFF, 0x0000, str );	//
-			
-			tim12_init_capture();														// reinitialize all
-		}
+		snprintf(str1, 30, "%d ticks", ticks);						// output recend period
+		LCD_WriteString(10, 50, 0xFFFF, 0x0000, str1);		//
+		
+		uint32_t frequency;		
+		frequency = 84000000/ticks;											// calculate frequency in Hertz
+		snprintf(str2, 30, "%d Hz", frequency);					// output calculated frequency
+		LCD_WriteString(10, 70, 0xFFFF, 0x0000, str2 );	//
+		
+		tim12_init_capture();														// reinitialize all
 		
 		if( (GPIOA->IDR & 1) != 0) {			 		// is button pressed?
 			
