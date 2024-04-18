@@ -29,6 +29,7 @@ static uint32_t ms = 0;							// count milliseconds
 static uint32_t s = 0;      				// count seconds
 
 static uint16_t flag_greenLED = 0;	// greenLED on or off
+static uint16_t runningLight_flag = 0; 
 
 static uint16_t tim12_last_capture; 		// remember count of last rising edge (Timer12 measure frequency)
 static uint16_t tim12_deltat;						// save the passed time between two rising edges 16bit;
@@ -168,7 +169,7 @@ void TIM7_IRQHandler(void)
 	// running light
 
 	if(!(ms % 250)) {												// every 250ms
-		LEDs_runningLight();										// one running light step
+		runningLight_flag = 1;									// one running light step
 	}
 	
 	// green LED
@@ -259,6 +260,11 @@ int main(void)
 		
 		} else {															// button is not pressed
 				GPIOD->ODR &= ~(1UL << 12);					// turn off green LED		
+		}
+		
+		if(runningLight_flag) {								// every 250ms
+			LEDs_runningLight();									// do a running light step
+			runningLight_flag = 0;								// reset flag
 		}
 		
 		while(ms < (init_ms + 50)) {					// until 50ms have passed
