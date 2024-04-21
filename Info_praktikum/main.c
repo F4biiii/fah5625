@@ -17,6 +17,7 @@ void LED_blinky(void);
 void LEDs_runningLight(void);
 void tim7_init(void);
 void tim12_init_capture(void);
+void tim4_init(void);
 void TIM7_IRQHandler(void);
 void TIM8_BRK_TIM12_IRQHandler(void);
 uint32_t tim12_capture_getticks(void);
@@ -27,6 +28,8 @@ uint32_t tim12_capture_getticks(void);
 
 static uint32_t ms = 0;							// count milliseconds
 static uint32_t s = 0;      				// count seconds
+
+static uint16_t buttonPressed = 0; 	// is user-button pressed?
 
 static uint16_t flag_greenLED = 0;	// greenLED on or off
 static uint16_t runningLight_flag = 0; 
@@ -117,7 +120,7 @@ void tim7_init(void)		// initialize timer (TIM7)
 	TIM7->PSC = 83;										// set prescaler, every 84th pulse will be counted (168MHz / 2)
 	TIM7->ARR = 999;									// counts to 1000
 	TIM7->DIER |= 1;									// activate interrupt
-	TIM7->CR1 |= 1;										// timer go
+	TIM7->CR1 |= 1;										// connect count register to prescaler
 	
 	NVIC_SetPriority(TIM7_IRQn, 1); 	// set priority 
 	NVIC_EnableIRQ(TIM7_IRQn); 				// activate NVIC Interrupt IRQ_Handle
@@ -130,7 +133,7 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	RCC->APB1ENR |= (1<<6);					// activate Timer 12 Peripheral
 	TIM12->PSC = 0;									// set prescaler to 0
 	TIM12->ARR = 0xFFFF;						// set auto reload register to maximum
-	TIM12->CR1 = 1;									// timer go
+	TIM12->CR1 = 1;									// connect count register to prescaler
 	
 	TIM12->CCMR1 = 1;								// Select channel 1 (IC1F: 0000), no prescaler (IC1PSC: 00), Selection to input TIy-ICy: (CC1S: 01)
 	TIM12->CCER = 1;								// activate enable register TIM12_CCER
@@ -149,6 +152,27 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 	NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);			// activate NVIC Interrupt IRQ_Handler
 
 }
+
+void tim4_init(void) 					// initialize timer (TIM4)
+{
+	RCC->APB1ENR |= (1<<2); 				// activate Timer 4 Peripheral
+	TIM4->PSC = 8;									// set prescaler to 8 (200Hz base freq)
+	TIM4->ARR = 52500;							// set auto reload register to 52.500 (200Hz base freq)
+	TIM4->CR1 = 1;									// connect count register to prescaler
+	
+	TIM4->CCMR1 &= ~(2u << 8);			// channel 2 output mode
+	TIM4->CCMR1 |= 5 << 12;					// compare mode 110 (OC2REF active until compare count is reached)
+	
+	TIM4->CCER &= ~(1u << 4);				// OC2REF active -> active pin-output
+	TIM4->CCER &= ~(1u << 7);				
+	
+	TIM4->CCR2 = 52500 / 2; 				// set brightness to 50% 
+	
+	GPIOD->MODER |= 1 << 27;				// set Pin PD13 
+	GPIOD->MODER &= ~(1u << 26);  	// to Alternate Function Mode (10)
+	GPIOD->AFR[1] = 2 << 20;  		// set PD13 to Alternate Funktion 9, TIM12 Channel 1
+}
+
 
 uint32_t tim12_capture_getticks(void)
 {
@@ -189,7 +213,7 @@ void TIM7_IRQHandler(void)
 	
 	static uint32_t cnt_display = 0;	
 
-	if( (GPIOA->IDR & 1) != 0) {			// is button pressed?
+	if(buttonPressed) {			// is button pressed?
 		GPIOD->ODR |= 1 << 13; 						// turn on display
 		cnt_display = 0;									// reset count
 	} else {													// button is not pressed		
@@ -197,7 +221,8 @@ void TIM7_IRQHandler(void)
 	}
 	
 	if(cnt_display >= 10000) {				// did count reach 10000ms (10s)
-		//GPIOD->ODR &= ~(1UL << 13);				// turn off display
+		//GPIOD->ODR &= ~(1UL << 13);			// turn off display
+		TIM4->CCR2 = 52500 / 2; 					// set brightness to 50% 
 		cnt_display = 0;									// reset count
 	}
 }
@@ -225,26 +250,34 @@ int main(void)
 	LEDs_InitPorts();											// initialise the required ports
 	tim7_init();													// initialize timer 7
 	tim12_init_capture();									// initialize timer 12
+	tim4_init();													// initialize timer 4
 	LCD_Init();														// initialize display
 	LCD_ClearDisplay( 0xFE00 );						// clear display
 	GPIOD->ODR &= ~(1UL << 13);						// turn off display
 
 	uint32_t init_ms;											// saves content of ms at start of main loop
 	
-	char str[30];												// array for output string
+	char str[30];													// array for output string
 	char str1[30];												// array for output string
 	char str2[30];												// array for output string
 
 	
 	while ( 1 ) {													// main loop
 		init_ms = ms;													// remember ms at start of main loop
+		
+		if( (GPIOA->IDR & 1) != 0) {			 		// is button pressed?
+			buttonPressed = 1;
+		} else {
+			buttonPressed = 0;
+		}
+		
 		snprintf(str, 30, "%u seconds", s);							// update time output string 
 		LCD_WriteString( 10, 10, 0xFFFF, 0x0000, str);	// output elapsed seconds(display) 
 		
 		uint32_t ticks = tim12_capture_getticks();			// get time of recent period
 			
-		snprintf(str1, 30, "%d ticks", ticks);						// output recend period
-		LCD_WriteString(10, 50, 0xFFFF, 0x0000, str1);		//
+		snprintf(str1, 30, "%d ticks", ticks);					// output recend period
+		LCD_WriteString(10, 50, 0xFFFF, 0x0000, str1);	//
 		
 		uint32_t frequency;		
 		frequency = 84000000/ticks;											// calculate frequency in Hertz
@@ -253,14 +286,13 @@ int main(void)
 		
 		tim12_init_capture();														// reinitialize all
 		
-		if( (GPIOA->IDR & 1) != 0) {			 		// is button pressed?
-			
+		if(buttonPressed) {			 						// is button pressed?		
+			TIM4->CCR2 = 52500; 								// set brightness to 100% 
 			if(flag_greenLED) {									// shall green LED be on or off? (flag switches every 500ms)
 				GPIOD->ODR |= 1 << 12;							// turn on green LED
 			} else {
 				GPIOD->ODR &= ~(1UL << 12);					// turn off green LED
 			}
-		
 		} else {															// button is not pressed
 				GPIOD->ODR &= ~(1UL << 12);					// turn off green LED		
 		}
@@ -268,6 +300,12 @@ int main(void)
 		if(runningLight_flag) {								// every 250ms
 			LEDs_runningLight();									// do a running light step
 			runningLight_flag = 0;								// reset flag
+		}
+		
+		if((!buttonPressed) && (TIM4->CCR2 > (52500/2))) {	// button is not pressed and display is brighter than 50%
+			TIM4->CCR2 -= (52500 / 100);													// reduce brightness by 1%
+		} else if(TIM4->CCR2 < (52500/2)) {							
+			TIM4->CCR2 = 52500 / 2;			
 		}
 		
 		while(ms < (init_ms + 50)) {					// until 50ms have passed
