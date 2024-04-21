@@ -155,18 +155,18 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 
 void tim4_init(void) 					// initialize timer (TIM4)
 {
-	RCC->APB1ENR |= (1<<2); 				// activate Timer 4 Peripheral
-	TIM4->PSC = 8;									// set prescaler to 8 (200Hz base freq)
-	TIM4->ARR = 52500;							// set auto reload register to 52.500 (200Hz base freq)
-	TIM4->CR1 = 1;									// connect count register to prescaler
+	RCC->APB1ENR |= (1<<2); 							// activate Timer 4 Peripheral
+	TIM4->PSC = ((84000000/2)/2000) - 1;	// 200Hz base freq
+	TIM4->ARR = 1000;											// set auto reload register to 52.500 (200Hz base freq)
+	TIM4->CR1 = 1;												// connect count register to prescaler
 	
 	TIM4->CCMR1 &= ~(2u << 8);			// channel 2 output mode
-	TIM4->CCMR1 |= 5 << 12;					// compare mode 110 (OC2REF active until compare count is reached)
+	TIM4->CCMR1 |= 6 << 12;					// compare mode 110 (OC2REF active until compare count is reached)
 	
 	TIM4->CCER &= ~(1u << 4);				// OC2REF active -> active pin-output
 	TIM4->CCER &= ~(1u << 7);				
 	
-	TIM4->CCR2 = 52500 / 2; 				// set brightness to 50% 
+	TIM4->CCR2 = 500; 				// set brightness to 50% 
 	
 	GPIOD->MODER |= 1 << 27;				// set Pin PD13 
 	GPIOD->MODER &= ~(1u << 26);  	// to Alternate Function Mode (10)
@@ -222,7 +222,7 @@ void TIM7_IRQHandler(void)
 	
 	if(cnt_display >= 10000) {				// did count reach 10000ms (10s)
 		//GPIOD->ODR &= ~(1UL << 13);			// turn off display
-		TIM4->CCR2 = 52500 / 2; 					// set brightness to 50% 
+		TIM4->CCR2 = 500; 								// set brightness to 50% 
 		cnt_display = 0;									// reset count
 	}
 }
@@ -287,7 +287,7 @@ int main(void)
 		tim12_init_capture();														// reinitialize all
 		
 		if(buttonPressed) {			 						// is button pressed?		
-			TIM4->CCR2 = 52500; 								// set brightness to 100% 
+			TIM4->CCR2 = 1000; 								// set brightness to 100% 
 			if(flag_greenLED) {									// shall green LED be on or off? (flag switches every 500ms)
 				GPIOD->ODR |= 1 << 12;							// turn on green LED
 			} else {
@@ -302,10 +302,10 @@ int main(void)
 			runningLight_flag = 0;								// reset flag
 		}
 		
-		if((!buttonPressed) && (TIM4->CCR2 > (52500/2))) {	// button is not pressed and display is brighter than 50%
-			TIM4->CCR2 -= (52500 / 100);													// reduce brightness by 1%
-		} else if(TIM4->CCR2 < (52500/2)) {							
-			TIM4->CCR2 = 52500 / 2;			
+		if((!buttonPressed) && (TIM4->CCR2 > (500))) {	// button is not pressed and display is brighter than 50%
+			TIM4->CCR2 -= (10);															// reduce brightness by 1%
+		} else if(TIM4->CCR2 < (500)) {							
+			TIM4->CCR2 = 500;			
 		}
 		
 		while(ms < (init_ms + 50)) {					// until 50ms have passed
