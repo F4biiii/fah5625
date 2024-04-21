@@ -170,7 +170,7 @@ void tim4_init(void) 					// initialize timer (TIM4)
 	
 	GPIOD->MODER |= 1 << 27;				// set Pin PD13 
 	GPIOD->MODER &= ~(1u << 26);  	// to Alternate Function Mode (10)
-	GPIOD->AFR[1] = 2 << 20;  		// set PD13 to Alternate Funktion 9, TIM12 Channel 1
+	GPIOD->AFR[1] = 2 << 20;  			// set PD13 to Alternate Funktion 2
 }
 
 
