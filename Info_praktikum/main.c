@@ -38,6 +38,8 @@ static uint16_t tim12_last_capture; 		// remember count of last rising edge (Tim
 static uint16_t tim12_deltat;						// save the passed time between two rising edges 16bit;
 static uint16_t tim12_firstEdge;	
 
+static uint16_t dimmDisplayFlag = 0;
+
 //###############################################
 //	functions
 //###############################################
@@ -156,8 +158,8 @@ void tim12_init_capture(void) 	// initialize timer (TIM12)
 void tim4_init(void) 					// initialize timer (TIM4)
 {
 	RCC->APB1ENR |= (1<<2); 							// activate Timer 4 Peripheral
-	TIM4->PSC = ((84000000/2)/2000) - 1;	// 200Hz base freq
-	TIM4->ARR = 1000;											// set auto reload register to 52.500 (200Hz base freq)
+	TIM4->PSC = 4200-1;										// 200Hz base freq
+	TIM4->ARR = 100;											// set auto reload register to 100, practical for %
 	TIM4->CR1 = 1;												// connect count register to prescaler
 	
 	TIM4->CCMR1 &= ~(2u << 8);			// channel 2 output mode
@@ -166,7 +168,7 @@ void tim4_init(void) 					// initialize timer (TIM4)
 	TIM4->CCER &= ~(1u << 4);				// OC2REF active -> active pin-output
 	TIM4->CCER &= ~(1u << 7);				
 	
-	TIM4->CCR2 = 500; 				// set brightness to 50% 
+	TIM4->CCR2 = 50; 				// set brightness to 50% 
 	
 	GPIOD->MODER |= 1 << 27;				// set Pin PD13 
 	GPIOD->MODER &= ~(1u << 26);  	// to Alternate Function Mode (10)
@@ -213,8 +215,9 @@ void TIM7_IRQHandler(void)
 	
 	static uint32_t cnt_display = 0;	
 
-	if(buttonPressed) {			// is button pressed?
-		GPIOD->ODR |= 1 << 13; 						// turn on display
+	if(buttonPressed) {								// is button pressed?
+		//GPIOD->ODR |= 1 << 13; 					// turn on display
+		TIM4->CCR2 = 100; 								// set brightness to 100%
 		cnt_display = 0;									// reset count
 	} else {													// button is not pressed		
 		cnt_display++;									  // count 
@@ -222,7 +225,7 @@ void TIM7_IRQHandler(void)
 	
 	if(cnt_display >= 10000) {				// did count reach 10000ms (10s)
 		//GPIOD->ODR &= ~(1UL << 13);			// turn off display
-		TIM4->CCR2 = 500; 								// set brightness to 50% 
+		dimmDisplayFlag = 1;							// now dimm display
 		cnt_display = 0;									// reset count
 	}
 }
@@ -286,8 +289,7 @@ int main(void)
 		
 		tim12_init_capture();														// reinitialize all
 		
-		if(buttonPressed) {			 						// is button pressed?		
-			TIM4->CCR2 = 1000; 								// set brightness to 100% 
+		if(buttonPressed) {			 						// is button pressed?		 
 			if(flag_greenLED) {									// shall green LED be on or off? (flag switches every 500ms)
 				GPIOD->ODR |= 1 << 12;							// turn on green LED
 			} else {
@@ -302,10 +304,13 @@ int main(void)
 			runningLight_flag = 0;								// reset flag
 		}
 		
-		if((!buttonPressed) && (TIM4->CCR2 > (500))) {	// button is not pressed and display is brighter than 50%
-			TIM4->CCR2 -= (10);															// reduce brightness by 1%
-		} else if(TIM4->CCR2 < (500)) {							
-			TIM4->CCR2 = 500;			
+		if(dimmDisplayFlag) {										// shall the display be dimmed
+			if(!(ms % 50) && TIM4->CCR2 > 50) {			// every 50ms
+				TIM4->CCR2--;														// reduce brightness by 1%
+			} else if (TIM4->CCR2 <= 50) {					// brightness is <= 50%
+				dimmDisplayFlag = 0;										// terminate the dimming process
+				TIM4->CCR2 = 50;												// set brightness to 50%
+			}
 		}
 		
 		while(ms < (init_ms + 50)) {					// until 50ms have passed
