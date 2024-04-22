@@ -31,7 +31,6 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="main.cpp" />
 		<Unit filename="pa1_utest.cpp" />
 		<Unit filename="ufosim.cpp" />
 		<Unit filename="ufosim.h" />
