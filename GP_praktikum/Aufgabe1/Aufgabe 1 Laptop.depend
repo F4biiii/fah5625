@@ -1,0 +1,60 @@
+# depslib dependency file v1.0
+1713126091 source:d:\daten\c++\aufgabe 1 laptop\ufosim.cpp
+	<chrono>
+	<cmath>
+	<iostream>
+	"ufosim.h"
+
+1713126091 d:\daten\c++\aufgabe 1 laptop\ufosim.h
+	<string>
+	<thread>
+
+1713132053 source:d:\daten\c++\aufgabe 1 laptop\vertical.cpp
+	"vertical.h"
+	<cmath>
+
+1713126562 d:\daten\c++\aufgabe 1 laptop\vertical.h
+	"ufosim.h"
+	<string>
+	<vector>
+
+1713169485 source:d:\daten\c++\aufgabe 1 laptop\pa1_utest.cpp
+	<cmath>
+	<type_traits>
+	<vector>
+	<boost/test/included/unit_test.hpp>
+	"vertical.h"
+
+1713132085 source:d:\daten\c++\aufgabe 1 laptop\main.cpp
+	"vertical.h"
+
+1713132085 source:d:\daten\c++\aufgabe1\main.cpp
+	"vertical.h"
+
+1713189701 d:\daten\c++\aufgabe1\vertical.h
+	"ufosim.h"
+	<string>
+	<vector>
+
+1713126091 d:\daten\c++\aufgabe1\ufosim.h
+	<string>
+	<thread>
+
+1713169485 source:d:\daten\c++\aufgabe1\pa1_utest.cpp
+	<cmath>
+	<type_traits>
+	<vector>
+	<boost/test/included/unit_test.hpp>
+	"vertical.h"
+
+1713126091 source:d:\daten\c++\aufgabe1\ufosim.cpp
+	<chrono>
+	<cmath>
+	<iostream>
+	"ufosim.h"
+
+1713189701 source:d:\daten\c++\aufgabe1\vertical.cpp
+	"vertical.h"
+	<cmath>
+	<math.h>
+
