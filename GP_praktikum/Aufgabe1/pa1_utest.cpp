@@ -2,7 +2,7 @@
 #include <cmath>
 #include <type_traits>
 #include <vector>
-#include <boost/test/included/uint_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "vertical.h"
 
 BOOST_AUTO_TEST_SUITE(pa_utest)
