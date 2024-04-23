@@ -1,4 +1,4 @@
-#include "vertical.h"
+#include "pa1_vertical.h"
 #include <cmath>
 #include <math.h>
 
