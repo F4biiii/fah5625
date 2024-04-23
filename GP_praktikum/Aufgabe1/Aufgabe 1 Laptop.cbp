@@ -32,10 +32,10 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="pa1_utest.cpp" />
+		<Unit filename="pa1_vertical.cpp" />
+		<Unit filename="pa1_vertical.h" />
 		<Unit filename="ufosim.cpp" />
 		<Unit filename="ufosim.h" />
-		<Unit filename="vertical.cpp" />
-		<Unit filename="vertical.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
