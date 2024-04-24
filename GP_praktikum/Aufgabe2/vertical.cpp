@@ -1,6 +1,4 @@
 #include "vertical.h"
-#include <cmath>
-#include <math.h>
 
 // constructor
 

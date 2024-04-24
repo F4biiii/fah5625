@@ -2,8 +2,9 @@
 #define BALLISTIC_H
 
 #include <vector>
+#include "ufo.h"
 
-class Ballistic
+class Ballistic : public Ufo
 {
 private:
     float takeOffAngle;
@@ -21,6 +22,7 @@ public:
 
     std::vector<float> firstWaypoint(const float x, const float y, const float height) const;
     std::vector<float> secondWaypoint(const float x, const float y, const float height) const;
+    void flyToDest(const float x, const float y, const float height, const int speed) const override;
 };
 
 #endif

@@ -5,8 +5,6 @@
 #include "ufo.h"
 
 #include <string>
-#include <vector>
-
 
 class Vertical : public Ufo
 {

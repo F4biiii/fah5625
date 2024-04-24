@@ -4,6 +4,8 @@
 #include "ufosim.h"
 #include "vertical.h"
 
+#include <vector>
+
 class Ufo
 {
 private:
@@ -21,7 +23,7 @@ public:
     std::vector<float> getPosition() const;
     float getFtime() const;
     // methods
-    virtual void flyToDest(const float x, const float y, const float height, const int speed) const;
+    virtual void flyToDest(const float x, const float y, const float height, const int speed) const = 0;
     static float angle(const float x1, const float y1, const float x2, const float y2);
 };
 
