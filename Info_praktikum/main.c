@@ -167,9 +167,7 @@ void tim4_init(void) 					// initialize timer (TIM4)
 	
 	TIM4->CCER &= ~(1u << 4);				// OC2REF active -> active pin-output
 	TIM4->CCER &= ~(1u << 7);				
-	
-	TIM4->CCR2 = 50; 				// set brightness to 50% 
-	
+		
 	GPIOD->MODER |= 1 << 27;				// set Pin PD13 
 	GPIOD->MODER &= ~(1u << 26);  	// to Alternate Function Mode (10)
 	GPIOD->AFR[1] = 2 << 20;  			// set PD13 to Alternate Funktion 2
@@ -256,7 +254,7 @@ int main(void)
 	tim4_init();													// initialize timer 4
 	LCD_Init();														// initialize display
 	LCD_ClearDisplay( 0xFE00 );						// clear display
-	GPIOD->ODR &= ~(1UL << 13);						// turn off display
+	TIM4->CCR2 = 50; 				// set brightness to 50% 
 
 	uint32_t init_ms;											// saves content of ms at start of main loop
 	
@@ -305,7 +303,7 @@ int main(void)
 		}
 		
 		if(dimmDisplayFlag) {										// shall the display be dimmed
-			if(!(ms % 50) && TIM4->CCR2 > 50) {			// every 50ms
+			if(TIM4->CCR2 > 50) {							// if brightness is higher than 50%
 				TIM4->CCR2--;														// reduce brightness by 1%
 			} else if (TIM4->CCR2 <= 50) {					// brightness is <= 50%
 				dimmDisplayFlag = 0;										// terminate the dimming process
