@@ -22,3 +22,17 @@ Ballistic::Ballistic(const float pTakeOffAngle, const float pLandingAngle)
 // destructor (does nothing)
 
 Ballistic::~Ballistic() { }     
+
+// methods
+
+std::vector<float> firstWaypoint(const float x, const float y, const float height)
+{
+
+    return {0.0, 0.0};
+}
+
+std::vector<float> secondWaypoint(const float x, const float y, const float height) 
+{
+
+    return {0.0, 0.0}; 
+}
