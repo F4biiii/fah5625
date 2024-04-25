@@ -55,7 +55,6 @@ std::vector<float> Ballistic::firstWaypoint(const float x, const float y, const 
 
     float xFinal = initialPosition[0] + directionVectorX * distanceFirstPoint;      // add the adjusted direction vector to the initial point
     float yFinal = initialPosition[1] + directionVectorY * distanceFirstPoint;      // add the adjusted direction vector to the initial point
-    std::cout << directionVectorX << " " << lengthDirectionVector << std::endl;
     return {xFinal, yFinal};
 }
 
