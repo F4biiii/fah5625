@@ -3,7 +3,7 @@
 #include <iostream>
 #include "ufosim.h"
 
-int Ufosim::SPEEDUP = 1;
+int Ufosim::SPEEDUP = 50;
 
 Ufosim::Ufosim()
 {

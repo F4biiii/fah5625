@@ -6,7 +6,7 @@
 
 Ufo::Ufo(const std::string& pId) {    
     id = pId;
-    Ufosim::setSpeedup(4);
+    Ufosim::setSpeedup(50);
     sim = new Ufosim();
 }
 
@@ -33,8 +33,8 @@ float Ufo::getFtime() const {
 // methods
 
 void Ufo::flyToDest(const float x, const float y, const float height, const int speed) const {
-    sim->flyTo(sim->getX(), sim->getY(), height, speed, 0);     // fly upwards to height
-    sim->flyTo(x, y, height, speed, 0);                         // fly to x y of destination
+    sim->flyTo(sim->getX(), sim->getY(), height, speed, speed);     // fly upwards to height
+    sim->flyTo(x, y, height, speed, speed);                         // fly to x y of destination
     sim->flyTo(x, y, 0.0, speed, 0);                            // fly down to height 0
     return;
 }
