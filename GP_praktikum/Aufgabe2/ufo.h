@@ -2,7 +2,6 @@
 #define UFO_H
 
 #include "ufosim.h"
-#include "vertical.h"
 
 #include <vector>
 

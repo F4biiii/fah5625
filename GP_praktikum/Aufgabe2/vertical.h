@@ -1,7 +1,6 @@
 #ifndef VERTICAL_H
 #define VERTICAL_H
 
-#include "ufosim.h"
 #include "ufo.h"
 
 #include <string>
