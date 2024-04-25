@@ -1,19 +1,18 @@
 #include "ballistic.h"
-#include "ufo.h"
 #include <cmath>
 
 // constructor for Ballistic
 
-Ballistic::Ballistic(const float pTakeOffAngle, const float pLandingAngle)
+Ballistic::Ballistic(const std::string& pId, const float pTakeOffAngle, const float pLandingAngle) : Ufo(pId)
 {
-    if(pTakeOffAngle < 0.0 && pTakeOffAngle <= 90.0)                    // TakeOffAngle has to be between 0 and 90°
+    if(pTakeOffAngle > 0.0 && pTakeOffAngle <= 90.0)                    // TakeOffAngle has to be between 0 and 90°
     {
         takeOffAngle = pTakeOffAngle;
     } else {                                                            // else set it to 45°
         takeOffAngle = 45.0;
     }
     
-    if(pLandingAngle < 0.0 && pLandingAngle <= 90.0)                    // TakeOffAngle has to be between 0 and 90°
+    if(pLandingAngle > 0.0 && pLandingAngle <= 90.0)                    // TakeOffAngle has to be between 0 and 90°
     {
         landingAngle = pLandingAngle;
     } else {                                                            // else set it to 45°
@@ -57,7 +56,6 @@ std::vector<float> Ballistic::firstWaypoint(const float x, const float y, const 
     float xFinal = initialPosition[0] + directionVectorX * distanceFirstPoint;      // add the adjusted direction Vector to the initial point
     float yFinal = initialPosition[1] + directionVectorY * distanceFirstPoint;      // add the adjusted direction Vector to the initial point
 
-
     return {xFinal, yFinal};
 }
 
@@ -80,7 +78,6 @@ std::vector<float> Ballistic::secondWaypoint(const float x, const float y, const
     float xFinal = initialPosition[0] + directionVectorX * distanceSecondPoint;      // add adjusted direction Vector to the initial point (direction Vector is as long as distance to second track)
     float yFinal = initialPosition[1] + directionVectorY * distanceSecondPoint;      // add adjusted direction Vector to the initial point (direction Vector is as long as distance to second track)
 
-
     return {xFinal, yFinal};
 }
 
@@ -91,5 +88,5 @@ void Ballistic::flyToDest(const float x, const float y, const float height, cons
 
     sim->flyTo(pos1[0], pos1[1], height, speed, speed);         // fly to first waypoint
     sim->flyTo(pos2[0], pos2[1], height, speed, speed);         // fly to second waypoint
-    sim->flyTo(x, y, height, speed, speed);                     // fly to actual destination
+    sim->flyTo(x, y, 0, speed, 0);                     // fly to actual destination
 }

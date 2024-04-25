@@ -1,7 +1,6 @@
 #ifndef BALLISTIC_H
 #define BALLISTIC_H
 
-#include <vector>
 #include "ufo.h"
 
 class Ballistic : public Ufo
@@ -11,7 +10,7 @@ private:
     float landingAngle;
 public:
     // constructor
-    Ballistic(const float pTakeOffAngle, const float pLandingAngle);
+    Ballistic(const std::string& pId, const float pTakeOffAngle, const float pLandingAngle);
     // destructor
     ~Ballistic();
     // getters

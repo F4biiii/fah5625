@@ -8,7 +8,7 @@ Vertical::Vertical(const std::string& pId) : Ufo(pId) { }
 
 Vertical::~Vertical() 
 {                         
-    delete sim;
+
 }
 
 // functions

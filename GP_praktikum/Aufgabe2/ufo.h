@@ -4,6 +4,8 @@
 #include "ufosim.h"
 
 #include <vector>
+#include <string>
+#include <iostream>
 
 class Ufo
 {
