@@ -45,16 +45,16 @@ std::vector<float> Ballistic::firstWaypoint(const float x, const float y, const 
     float directionVectorX = x - initialPosition[0];        // calculate x-component
     float directionVectorY = y - initialPosition[1];        // calculate y-component
     
-    float lengthDirectionVector = sqrt(directionVectorX*directionVectorX + directionVectorY*directionVectorY);  // calculate length of direction Vector (distance from start to end)
+    float lengthDirectionVector = sqrt(directionVectorX*directionVectorX + directionVectorY*directionVectorY);  // calculate length of direction vector (distance from start to end)
 
     // change the length of direction vecotor to exactly 1 (makes it easy to reach a specific point on the track)
     directionVectorX = 1/lengthDirectionVector * directionVectorX;
     directionVectorY = 1/lengthDirectionVector * directionVectorY;
 
-    float distanceFirstPoint = height / tan( getTakeOffAngle() ); // calculate length of first part (track until firstWayPoint)
+    float distanceFirstPoint = height / tan( getTakeOffAngle()/180/std::numbers::pi ); // calculate length of first part (track until firstWayPoint)
 
-    float xFinal = initialPosition[0] + directionVectorX * distanceFirstPoint;      // add the adjusted direction Vector to the initial point
-    float yFinal = initialPosition[1] + directionVectorY * distanceFirstPoint;      // add the adjusted direction Vector to the initial point
+    float xFinal = initialPosition[0] + directionVectorX * distanceFirstPoint;      // add the adjusted direction vector to the initial point
+    float yFinal = initialPosition[1] + directionVectorY * distanceFirstPoint;      // add the adjusted direction vector to the initial point
 
     return {xFinal, yFinal};
 }
@@ -73,10 +73,10 @@ std::vector<float> Ballistic::secondWaypoint(const float x, const float y, const
     directionVectorX = 1/lengthDirectionVector * directionVectorX;
     directionVectorY = 1/lengthDirectionVector * directionVectorY;
 
-    float distanceSecondPoint = lengthDirectionVector - ( height / tan( getLandingAngle() ) ); // calculate length of part until second waypoint 
+    float distanceSecondPoint = lengthDirectionVector - ( height / tan( getLandingAngle()/180/std::numbers::pi ) ); // calculate length of part until second waypoint 
 
-    float xFinal = initialPosition[0] + directionVectorX * distanceSecondPoint;      // add adjusted direction Vector to the initial point (direction Vector is as long as distance to second track)
-    float yFinal = initialPosition[1] + directionVectorY * distanceSecondPoint;      // add adjusted direction Vector to the initial point (direction Vector is as long as distance to second track)
+    float xFinal = initialPosition[0] + directionVectorX * distanceSecondPoint;      // add adjusted direction vector to the initial point (direction vector is as long as distance to second track)
+    float yFinal = initialPosition[1] + directionVectorY * distanceSecondPoint;      // add adjusted direction vector to the initial point (direction vector is as long as distance to second track)
 
     return {xFinal, yFinal};
 }
