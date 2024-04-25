@@ -1,6 +1,5 @@
 #include "ufo.h"
-#include <cmath>
-#include <vector>
+
 
 // constructor for Ufo
 

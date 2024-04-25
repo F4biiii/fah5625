@@ -14,13 +14,13 @@ public:
     // destructor
     ~Ballistic();
     // getters
-    const float getTakeOffAngle() const;
-    const float getLandingAngle() const;  
+    float getTakeOffAngle() const;
+    float getLandingAngle() const;  
 
     // methods
 
-    std::vector<float> firstWaypoint(const float x, const float y, const float height) const;
-    std::vector<float> secondWaypoint(const float x, const float y, const float height) const;
+    const std::vector<float> firstWaypoint(const float x, const float y, const float height) const;
+    const std::vector<float> secondWaypoint(const float x, const float y, const float height) const;
     void flyToDest(const float x, const float y, const float height, const int speed) const override;
 };
 

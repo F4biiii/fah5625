@@ -11,7 +11,7 @@ Vertical::~Vertical()
 
 }
 
-// functions
+// methods
 
 void Vertical::flyToDest(const float x, const float y, const float height, const int speed) const 
 {
