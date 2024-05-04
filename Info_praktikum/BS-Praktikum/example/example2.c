@@ -13,7 +13,7 @@ void *example_fct(void *args){
 }
 
 int main(){
-  /* Lege ein Thread-Handle, einen Übergabe- und einen Rü ckgabeparameter an */
+  /* Lege ein Thread-Handle, einen Übergabe- und einen Rücdckgabeparameter an */
   pthread_t thread;
   uintptr_t threadParam = 42;
   uintptr_t threadRetParam = -1;
