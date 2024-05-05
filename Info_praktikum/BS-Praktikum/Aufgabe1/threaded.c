@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 
-#define limit 100000
+#define limit 1000000
 
 struct threadParam {
     int start;
@@ -45,7 +45,7 @@ int main (int argc, char* argv[]) {
     pthread_t thread[threadCount];                                     // array for threadID
     struct threadParam data[threadCount];                              // struct for thread function parameter (start and end of range)
 
-    if(threadCount > 8 || threadCount < 1) {                            
+    if(threadCount < 1) {                            
         threadCount = 1;                                               // set it to 1 if instruction invalid
     }         
 
