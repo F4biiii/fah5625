@@ -22,7 +22,7 @@ void* isPrime(void* args) {
             }
         }
         if(prime && i > 1) {
-            printf("%d (Thread: %d, %d)\n", i, data->start-2, data->step);
+            printf("%d (Thread: %d)\n", i, data->start-2);
         }
         nanosleep(&sleep, NULL);
     }
@@ -30,8 +30,9 @@ void* isPrime(void* args) {
 }
 
 int main (int argc, char* argv[]) {
-    struct timespec tp;
-    int tim1 = clock_gettime(CLOCK_REALTIME, &tp);
+    struct timespec tim1;
+    timespec_get(&tim1, TIME_UTC);
+
     int threadCount;
     if(argv[1] != NULL) {
         threadCount = atoi(argv[1]);                                   // get the desired amount of calculating cores
@@ -59,7 +60,10 @@ int main (int argc, char* argv[]) {
     for(int j = 0; j < threadCount; j++) {                        // wait for all threads to finish
         pthread_join(thread[j], NULL);
     }
-    int tim2 = clock_gettime(CLOCK_REALTIME, &tp);
-    printf("%d\n", tim2);
+    struct timespec tim2;
+    timespec_get(&tim2, TIME_UTC);
+    
+    double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;
+    printf("\n%lf seconds elapsed\n", time);
     return 0;
 }
