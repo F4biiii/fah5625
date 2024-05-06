@@ -31,7 +31,8 @@ void* isPrime(void* args) {
 
 int main (int argc, char* argv[]) {
     struct timespec tim1;
-    timespec_get(&tim1, TIME_UTC);
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tim1);
+    //timespec_get(&tim1, TIME_UTC);
 
     int threadCount;
     if(argv[1] != NULL) {
@@ -60,10 +61,10 @@ int main (int argc, char* argv[]) {
     for(int j = 0; j < threadCount; j++) {                        // wait for all threads to finish
         pthread_join(thread[j], NULL);
     }
-    struct timespec tim2;
-    timespec_get(&tim2, TIME_UTC);
+    struct timespec tim2;                                         
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tim2);
     
-    double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;
+    double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;  // get elapsed time in seconds
     printf("\n%lf seconds elapsed\n", time);
     return 0;
 }
