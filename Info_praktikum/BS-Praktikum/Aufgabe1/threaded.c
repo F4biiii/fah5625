@@ -3,9 +3,10 @@
 #include <pthread.h>
 #include <time.h>
 
-#define limit 1000000
+#define limit 100000
 
 struct threadParam {
+    int threadID;
     int start;
     int step;
     double* threadT;
@@ -25,7 +26,7 @@ void* isPrime(void* args) {
             }
         }
         if(prime && i > 1) {
-            printf("%d (Thread: %d)\n", i, data->start-2);
+            printf("%d (Thread: %d)\n", i, data->threadID);
         }
         nanosleep(&sleep, NULL);
     }
@@ -38,41 +39,34 @@ void* isPrime(void* args) {
 
 int main (int argc, char* argv[]) {
     struct timespec tim1;
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tim1);
-    //timespec_get(&tim1, TIME_UTC);
+    struct timespec tim2;   
+    struct timespec sleep = {0, 1000 };  
+    clock_gettime(CLOCK_MONOTONIC, &tim1);
 
-    int threadCount;
-    if(argv[1] != NULL) {
-        threadCount = atoi(argv[1]);                                   // get the desired amount of calculating cores
-        printf("Calculating with %d Thread(s)}\n\n", threadCount);
-    } else {
-        printf("Calculating with one thread...\n\n");
-        threadCount = 1;                                               // one thread if no argument
-    }
+    int threadCount = atoi(argv[1]);                                                   // input, how many threads shall calculate
+    printf("Calculating with %d Thread(s)}\n\n", threadCount);
 
     pthread_t thread[threadCount];                                     // array for threadID
-    double threadTime[threadCount];
-    struct threadParam data[threadCount];                              // struct for thread function parameter (start and end of range)
-
-    if(threadCount < 1) {                            
-        threadCount = 1;                                               // set it to 1 if instruction invalid
-    }         
-
-    struct timespec sleep = {0, 1000 };  
-    for(int i = 0; i < threadCount; i++) {                    
-        data[i].start = i+2;
+    double threadTime[threadCount];                                    // save elapsed time for each thread
+    struct threadParam data[threadCount];                              // struct for thread function parameter (threadId, start, step range, time)      
+    
+    int threadStart = 2;
+    for(int i = 0; i < threadCount; i++) {                      
+        data[i].threadID = i;
+        data[i].start = threadStart;
         data[i].step = threadCount;
         data[i].threadT = &threadTime[i];
 
         pthread_create(&thread[i], NULL, *isPrime, (void* )&data[i]);
+        threadStart ++;
         nanosleep(&sleep, NULL);
     }
     
     for(int j = 0; j < threadCount; j++) {                        // wait for all threads to finish
         pthread_join(thread[j], NULL);
     }
-    struct timespec tim2;                                         
-    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tim2);
+                                          
+    clock_gettime(CLOCK_MONOTONIC, &tim2);
     
     double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;  // get elapsed time in seconds
     printf("\n%lf seconds elapsed\n", time);
