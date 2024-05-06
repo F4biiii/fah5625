@@ -35,7 +35,7 @@ void Route::setDist(float(*pDist)(const float x1, const float y1, const float x2
 
 float Route::distance() const
 {
-    
+
 }
 
 void Route::shortestRoute()
