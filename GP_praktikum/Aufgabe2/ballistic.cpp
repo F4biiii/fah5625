@@ -37,7 +37,7 @@ float Ballistic::getLandingAngle() const
 
 // methods
 
-const std::vector<float> Ballistic::firstWaypoint(const float x, const float y, const float height) const
+std::vector<float> Ballistic::firstWaypoint(const float x, const float y, const float height) const
 {
     std::vector<float> initialPosition = getPosition();     // get the position of start
 
@@ -61,7 +61,7 @@ const std::vector<float> Ballistic::firstWaypoint(const float x, const float y, 
     return {xFinal, yFinal};
 }
 
-const std::vector<float> Ballistic::secondWaypoint(const float x, const float y, const float height) const
+std::vector<float> Ballistic::secondWaypoint(const float x, const float y, const float height) const
 {
     std::vector<float> initialPosition = getPosition();     // get the position of start
 
