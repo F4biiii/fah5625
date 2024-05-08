@@ -16,7 +16,7 @@ void* isPrime(void* args) {
     struct threadParam* data = (struct threadParam*)  args;
     struct timespec thr1;                                         
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thr1); 
-    int range = 10;
+    int range = 500;
     
     for(int i = data->start * range; i < limit; i+=range*data->threadCount) {
         //printf("%d Thread: %d\n", i, data->start);
