@@ -5,7 +5,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include "ufo.h"
 #include "ballistic.h"
-#include "vertical.h"
 #include "route.h"
 
 BOOST_AUTO_TEST_SUITE(pa_utest)
