@@ -5,14 +5,13 @@
 
 #define limit 1000000
 
-
-struct threadParam {
+struct threadParam {                                                                // struct with arguments for thread function
     int start;
     int threadCount;
     double* threadT;
 }; 
 
-void* isPrime(void* args) {
+void* printPrimes(void* args) {                                                         
     struct threadParam* data = (struct threadParam*)  args;
     struct timespec thr1;                                         
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thr1); 
@@ -51,22 +50,22 @@ int main (int argc, char* argv[]) {
         threadCnt = atoi(argv[1]);                                                   // input, how many threads shall calculate
         printf("Calculating with %d Thread(s)}\n\n", threadCnt);
     } else {
-        threadCnt = 1;
+        threadCnt = 1;                                                               // set it thread count to 1 if argument invalid
         printf("Calculating with one Thread\n\n");
     }
 
 
     pthread_t thread[threadCnt];                                     // array for threadID
     double threadTime[threadCnt];                                    // save elapsed time for each thread
-    struct threadParam data[threadCnt];                              // struct for thread function parameter (threadId, start, step range, time)      
+    struct threadParam data[threadCnt];                              // struct for thread function parameter (start, threadCount, thread Time)      
     
    
-    for(int i = 0; i < threadCnt; i++) {                      
+    for(int i = 0; i < threadCnt; i++) {                             // create every thread
         data[i].start = i;
         data[i].threadCount = threadCnt;
         data[i].threadT = &threadTime[i];
 
-        pthread_create(&thread[i], NULL, *isPrime, (void* )&data[i]);
+        pthread_create(&thread[i], NULL, *printPrimes, (void* )&data[i]);
         nanosleep(&sleep, NULL);
     }
     
