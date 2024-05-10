@@ -1,6 +1,8 @@
 #ifndef BALLISTIC_H
 #define BALLISTIC_H
 
+#include "ufo.h"
+
 class Ballistic : public Ufo
 {
 private:

@@ -5,6 +5,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "ufo.h"
 #include "ballistic.h"
+#include "vertical.h"
 #include "route.h"
 
 BOOST_AUTO_TEST_SUITE(pa_utest)
@@ -96,21 +97,6 @@ BOOST_AUTO_TEST_CASE(ufo_angle)
     BOOST_CHECK(fabs(Ufo::angle(0.0, 0.0, -10.0, 30.0) - 341.565) < 0.001);
     BOOST_CHECK(fabs(Ufo::angle(-1.0, -1.0, -1.9, 30.0) - 358.337) < 0.001);
 }
-
-/*BOOST_AUTO_TEST_CASE(ballistic_angles)
-{
-    Ballistic ball("ball", 45.0, 70.0);
-    BOOST_CHECK(ball.getTakeOffAngle() == 45.0);
-    BOOST_CHECK(ball.getLandingAngle() == 70.0);
-
-    Ballistic ball2("ball2", -10.0, 0.0);
-    BOOST_CHECK(ball2.getTakeOffAngle() == 45.0);
-    BOOST_CHECK(ball2.getLandingAngle() == 45.0);
-
-    Ballistic ball3("ball3", 275.0, 90.0001);
-    BOOST_CHECK(ball3.getTakeOffAngle() == 45.0);
-    BOOST_CHECK(ball3.getLandingAngle() == 45.0);
-}*/
 
 BOOST_AUTO_TEST_CASE(ballistic_angles)
 {
@@ -226,8 +212,10 @@ BOOST_AUTO_TEST_CASE(ballistic_after_one_flight)
 
     BOOST_CHECK(fabs(ball.getFtime() - 20.8) < 3);
 
-    std::vector<float> first = ball.firstWaypoint(dest1[0], dest1[1], dest1[2]);
+    // the waypoints should be independent from the order of the calls
+    // of firstWaypoint and secondWaypoint
     std::vector<float> second = ball.secondWaypoint(dest1[0], dest1[1], dest1[2]);
+    std::vector<float> first = ball.firstWaypoint(dest1[0], dest1[1], dest1[2]);
 
     BOOST_CHECK(size(first) == 2);
 
@@ -263,6 +251,15 @@ BOOST_AUTO_TEST_CASE(ballistic_after_one_flight)
         BOOST_CHECK(fabs(second[0] - (-19.0396)) < 0.1);
         BOOST_CHECK(fabs(second[1] - (-13.5586)) < 0.1);
     }
+}
+
+BOOST_AUTO_TEST_CASE(ballistic_is_not_vertical)
+{
+    // ballistic flight is different from vertical flight
+    Ballistic ball("ball", 45.0, 45.0);
+    ball.flyToDest(8.0, 0.0, 4.0, 5);
+    BOOST_CHECK(size(ball.getPosition()) == 3);
+    BOOST_CHECK(fabs(ball.getFtime() - 19.3) < 2);
 }
 
 BOOST_AUTO_TEST_CASE(vertical_distance)
@@ -306,6 +303,7 @@ BOOST_AUTO_TEST_CASE(route)
 
 BOOST_AUTO_TEST_CASE(route2)
 {
+    // ordering by x-component is not always the shortest route
     Route route(10.0, &Vertical::distance);
     BOOST_CHECK(size(route.getDestinations()) == 0);
     route.add(8.0, 100.0);

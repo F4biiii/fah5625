@@ -3,8 +3,6 @@
 
 #include "ufo.h"
 
-
-
 class Vertical : public Ufo
 {
 public:

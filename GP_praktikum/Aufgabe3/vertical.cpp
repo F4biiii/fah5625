@@ -18,9 +18,9 @@ void Vertical::flyToDest(const float x, const float y, const float height, const
     return;
 }
 
-static float distance(const float x1, const float y1, const float x2, const float y2, const float h)    
+float Vertical::distance(const float x1, const float y1, const float x2, const float y2, const float h)    
 {
-    return sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)) + 2*h;
+    return sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)) + 2*h;                                                         // length of vector between start and end + 2*height
 }
 
 
