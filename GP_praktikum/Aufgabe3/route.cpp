@@ -1,17 +1,23 @@
 #include "route.h"
 #include <algorithm>
 
+
 Route::Route(const float pHeight, float(*pDist)(const float x1, const float y1, const float x2, const float y2, const float h))
 {
+    destinations = new std::vector<std::pair<float, float>>();
     height = pHeight;
     dist = pDist;
 }
 
-Route::~Route() { }
+Route::~Route() 
+{
+    delete destinations;
+    destinations = nullptr;
+}
 
 void Route::add(const float destX, const float destY)
 {
-    destinations->push_back({destX, destY});
+    destinations->push_back(std::make_pair(destX, destY));
 }
 
 const std::vector<std::pair<float,float>>& Route::getDestinations() const
