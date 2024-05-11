@@ -1,6 +1,5 @@
 #include "ballistic.h"
 
-
 // constructor for Ballistic
 
 Ballistic::Ballistic(const std::string& pId, const float pTakeOffAngle, const float pLandingAngle) : Ufo(pId)

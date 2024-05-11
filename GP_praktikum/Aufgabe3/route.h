@@ -3,8 +3,6 @@
 
 #include "ufo.h"
 
-#include <vector>
-
 class Route 
 {
 private:
