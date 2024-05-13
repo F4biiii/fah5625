@@ -12,6 +12,7 @@ VerticalThread::~VerticalThread()
     if(flyThread != nullptr)                    // if a thread is still active
     {
         flyThread->join();                          // wait for it to end and close it
+        delete flyThread;
         isVertFlying = false;                       // reset isVertFlying to initially false
     }
 }
