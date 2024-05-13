@@ -8,14 +8,13 @@ VerticalThread::VerticalThread() {
 //destructor
 VerticalThread::~VerticalThread() 
 {
-    delete vert;                                // free memmory of vertical object
     if(flyThread != nullptr)                    // if a thread is still active
     {
         flyThread->join();                          // wait for it to end and close it
         delete flyThread;                           // free memmory of thread
     }
     isVertFlying = false;                       // reset isVertFlying to initially false
-
+    delete vert;                                // free memmory of vertical object
 }
 
 //private methods
