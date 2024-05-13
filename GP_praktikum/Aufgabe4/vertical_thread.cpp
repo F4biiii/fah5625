@@ -12,9 +12,10 @@ VerticalThread::~VerticalThread()
     if(flyThread != nullptr)                    // if a thread is still active
     {
         flyThread->join();                          // wait for it to end and close it
-        delete flyThread;
-        isVertFlying = false;                       // reset isVertFlying to initially false
+        delete flyThread;                           // free memmory of thread
     }
+    isVertFlying = false;                       // reset isVertFlying to initially false
+
 }
 
 //private methods
@@ -30,10 +31,11 @@ VerticalThread::~VerticalThread()
     if(flyThread != nullptr)                    // if a thread is still active
     {
         flyThread->join();                          // wait for it to end and close it
+        delete flyThread;                           // free memmory of thread
     }
-    isVertFlying = true;                        // vert will start flying now
     flyThread = new std::thread(&VerticalThread::runner, this, x, y, height, speed);    // start a thread where the vert will fly to the given destination
- }
+    isVertFlying = true;                        // vert is flying now
+}
 
  bool VerticalThread::getIsVertFlying() const
  {
