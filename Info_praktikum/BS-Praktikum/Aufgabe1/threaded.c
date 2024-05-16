@@ -4,6 +4,7 @@
 #include <time.h>
 
 #define limit 1000000
+int totalPrimes = 0;
 
 struct threadParam {                                                                // struct with arguments for thread function
     int start;
@@ -29,6 +30,7 @@ void* printPrimes(void* args) {
             }
             if(prime && j > 1) {
                 printf("%d (Thread: %d)\n", j, data->start);
+                totalPrimes++;
             }
         }
     }
@@ -76,9 +78,10 @@ int main (int argc, char* argv[]) {
     clock_gettime(CLOCK_MONOTONIC, &tim2);
     
     double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;  // get elapsed time in seconds
-    printf("\n%lf seconds elapsed\n", time);
     for (int i = 0; i < threadCnt; i++) {
-        printf("Thread %d: %lf seconds\n", i, threadTime[i]);
+        printf("\nThread %d: %lf seconds", i, threadTime[i]);
     }
+    printf("\n\n%lf seconds elapsed\n", time);
+    printf("%d Primes found\n", totalPrimes);
     return 0;
 }
