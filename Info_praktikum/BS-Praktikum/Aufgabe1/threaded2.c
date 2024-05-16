@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 
-#define limit 1000000
+#define limit 10010000
 
 struct threadParam {                                                                // struct with arguments for thread function
     int start;
@@ -15,9 +15,9 @@ void* printPrimes(void* args) {
     struct threadParam* data = (struct threadParam*)  args;
     struct timespec thr1;                                         
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thr1); 
-    int range = 500;
+    int range = 200;
     
-    for(int i = data->start * range; i < limit; i+=range*data->threadCount) {
+    for(int i = data->start * range + 10000000; i < limit; i+=range*data->threadCount) {
         for(int j = i; j < i+range; j++) {          
             int prime = 1;
             for(int k = 2; k < j; k++) {
