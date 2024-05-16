@@ -87,7 +87,7 @@ int main (int argc, char* argv[]) {
     
     int totalPrimes = 0;   
     for(int i = 0; i < threadCnt; i++) {                        // iterate through the array "totalPrimes[threadCnt]" 
-        totalPrimes += primeCount[i];                               // add up all elements, every thread safed the amount of found primes in his element of the array
+        totalPrimes += primeCount[i];                           // add up all elements, every thread safed the amount of found primes in his element of the array
     }
     printf("%d primes found between 2 and %d\n\n", totalPrimes, limit);                   // print all found primes
     
