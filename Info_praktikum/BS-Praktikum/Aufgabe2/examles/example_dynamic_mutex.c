@@ -4,7 +4,6 @@
 
 pthread_mutex_t mutex;
 
-
 int count = 0;
 
 const size_t MAX_CNT = 10000000;
