@@ -4,13 +4,17 @@
 
 int count = 0;
 
+pthread_mutex_t global_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 const size_t MAX_CNT = 10000000;
 
 
 void* increment(void* args) {
     int maxCnt = *(int* ) args;
     for(int i = 0; i < maxCnt; i++) {
+        pthread_mutex_lock(&global_mutex);
         count++;
+        pthread_mutex_unlock(&global_mutex);
     }
     return NULL;
 }
@@ -18,12 +22,15 @@ void* increment(void* args) {
 void* decrement(void* args) {
     int maxCnt = *(int* ) args;
     for(int i = 0; i < maxCnt; i++) {
+        pthread_mutex_lock(&global_mutex);
         count--;
+        pthread_mutex_unlock(&global_mutex);
     }
     return NULL;
 }
 
 int main(void) {
+
     printf("Count vor Bearbeitung: %d\n", count);
 
     pthread_t p1; 
@@ -39,5 +46,6 @@ int main(void) {
 
     printf("Count nach Bearbeitung: %d\n", count);
 
+    pthread_mutex_destroy(&global_mutex);
     return 0;
 }
