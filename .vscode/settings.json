@@ -94,7 +94,8 @@
         "valarray": "cpp",
         "variant": "cpp",
         "stdlib.h": "c",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "time.h": "c"
     },
     "C_Cpp.default.cppStandard": "c++20"
 }

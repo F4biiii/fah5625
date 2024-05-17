@@ -7,7 +7,7 @@
 
 pthread_mutex_t mutex;
 
-int count = 2;
+int count = 2;                                                                      // current number to be checked for prime
 
 struct threadParam {                                                                // struct with arguments for thread function
     int threadNumber;                                                                   // chronological numeration of all threads [0, threadCount]
@@ -19,23 +19,23 @@ void* printPrimes(void* args) {
     struct threadParam* data = (struct threadParam*)  args;                             
     struct timespec thr1;                                                               // variable to safe time of thread start
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thr1);                                      // safe time of thread start
-    int foundPrimes = 0;
-    int countCpy;    
-    while(count <= limit) {
-        int prime = 1; 
+    int foundPrimes = 0;                                                                // so far found primes
+    int countCpy;                                                                       // copy the current number to be checked for prime
+    while(count <= limit) {                                                             // count to limit
+        int prime = 1;                                                                      // prime status of the number we check is initially true
         
-        pthread_mutex_lock(&mutex);
-        countCpy = count++;
-        pthread_mutex_unlock(&mutex);
-                                                                             // prime status of the number we check is initially true
+        pthread_mutex_lock(&mutex);                                                         // lock the count to access it without problems
+        countCpy = count++;                                                                 // copy the count and increase it afterwards
+        pthread_mutex_unlock(&mutex);                                                       // unlock the count to let other threads access
+                                                                             
         for(int i = 2; i < countCpy; i++) {                                                            
-            if(countCpy % i == 0) {                                                                // if the checked number can be divided by any other number (from 2 - checked number) without rest
+            if(countCpy % i == 0) {                                                             // if the checked number can be divided by any other number (from 2 - checked number) without rest
                 prime = 0;                                                                      // checked number is no prime
                 break;                                                                          // stop checking 
             }
         }
         if(prime) {                                                                
-            printf("%d (Thread: %d)\n", countCpy, data->threadNumber);                             // print if it is a prime
+            //printf("%d (Thread: %d)\n", countCpy, data->threadNumber);                          // print if it is a prime
             foundPrimes++;                                                                      // increase found primes
         }
     }
@@ -43,7 +43,7 @@ void* printPrimes(void* args) {
     struct timespec thr2;                                                                           // variable to safe time of thread end
     clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thr2);                                                  // safe time of thread end    
     *data->threadT = (thr2.tv_sec - thr1.tv_sec) + (thr2.tv_nsec - thr1.tv_nsec) / 1000000000.0;    // safe elapsed time in seconds
-    *data->threadPrimeCount = foundPrimes; // safe found primes
+    *data->threadPrimeCount = foundPrimes;                                                          // safe found primes
 
     return NULL;
 }
@@ -84,8 +84,8 @@ int main (int argc, char* argv[]) {
     
     pthread_mutex_destroy(&mutex);
 
-    double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;  // calculate elapsed time in seconds
-    for (int i = 0; i < threadCnt; i++) {                       // print thread time for each thread
+    double time = (tim2.tv_sec - tim1.tv_sec) + (tim2.tv_nsec - tim1.tv_nsec) / 1000000000.0;   // calculate elapsed time in seconds
+    for (int i = 0; i < threadCnt; i++) {                                                       // print thread time for each thread
         printf("\nThread %d: %lf seconds", i, threadTime[i]);
     }
 
