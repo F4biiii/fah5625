@@ -37,7 +37,7 @@ void* printPrimes(void* args) {
             }
         }
         if(prime) {                                                                
-            printf("%d (Thread: %d)\n", countCpy, data->threadNumber);                          // print if it is a prime
+            //printf("%d (Thread: %d)\n", countCpy, data->threadNumber);                          // print if it is a prime
             foundPrimes++;                                                                      // increase found primes
         }
     }
