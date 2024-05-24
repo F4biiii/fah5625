@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QGridLayout>
-#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 
@@ -17,25 +16,28 @@ class MainWidget : public QWidget
 public:
     MainWidget(QMainWindow *parent = nullptr): QWidget(parent)
     {
-        labelX = new QLabel("x:");
+        labelX = new QLabel("x:");          // QLabels
         labelY = new QLabel("y:");
         labelS = new QLabel("speed:");
         labelH = new QLabel("height:");
-        inputX = new QLineEdit();
+        labelO = new QLabel("\n\n\n");
+
+        inputX = new QLineEdit();           // QLineEdits
         inputY = new QLineEdit();
         inputHeight = new QLineEdit();
         inputSpeed = new QLineEdit();
 
-        startButton = new QPushButton("Start", this);
-        labelO = new QLabel("\n\n\n");
+        startButton = new QPushButton("Start", this);   // QPushButton
 
-        inputX->setStyleSheet("border: 1px solid grey");
-        inputY->setStyleSheet("border: 1px solid grey");
-        inputHeight->setStyleSheet("border: 1px solid grey");
-        inputSpeed->setStyleSheet("border: 1px solid grey");
-        labelO->setStyleSheet("border: 1px solid grey");
 
-        layoutGrid = new QGridLayout(this);
+        inputX->setStyleSheet("border: 1px solid grey");        // grey border
+        inputY->setStyleSheet("border: 1px solid grey");        //
+        inputHeight->setStyleSheet("border: 1px solid grey");   //
+        inputSpeed->setStyleSheet("border: 1px solid grey");    //
+        labelO->setStyleSheet("border: 1px solid grey");        //
+        labelO->setAlignment(Qt::AlignCenter);                  // center text in lable
+
+        layoutGrid = new QGridLayout(this);                     // create grid, then position widgets
         layoutGrid->addWidget(labelX, 0, 0);
         layoutGrid->addWidget(inputX, 0, 1);
         layoutGrid->addWidget(labelY, 1, 0);
@@ -46,59 +48,72 @@ public:
         layoutGrid->addWidget(inputSpeed, 3, 1);
         layoutGrid->addWidget(startButton, 4, 0, 1, 2);
         layoutGrid->addWidget(labelO, 5, 0, 1, 2);
-        layoutGrid->setSpacing(5);
+        layoutGrid->setSpacing(5);                              // space between widgets
 
-        setLayout(layoutGrid);
+        setLayout(layoutGrid);                                  // apply layout
 
-        vthread = new VerticalThread();
+        vthread = new VerticalThread();                         // create VerticalThread object
 
-        connect(startButton, SIGNAL(clicked()), this, SLOT(startUfo()));
+        connect(startButton, SIGNAL(clicked()), this, SLOT(startUfo()));                                        // connect signal (button clicked) to slot (startUfo)
+        connect(vthread, SIGNAL(stopped(std::vector<float>)), this, SLOT(updateWindow(std::vector<float>)));    // connect signal (stopped) to slot (updateWindow)
     }
 
     ~MainWidget()
     {
-        delete labelX;
-        delete labelY;
-        delete labelH;
-        delete labelS;
         delete layoutGrid;
+        delete inputSpeed;
+        delete inputHeight;
+        delete inputY;
+        delete inputX;
+        delete labelS;
+        delete labelH;
+        delete labelY;
+        delete labelX;
     }
 
 private slots:
 
     void startUfo()
     {
-        bool validInput = true;
+        bool validInput = true;                         // is input valid or not
 
-        float x = inputX->text().toFloat(&validInput);
+        float x = inputX->text().toFloat(&validInput);  // save inputX in x, also save if the input was valid in validInput
         if(!validInput)
         {
-            inputX->setText("error: must be float");
+            inputX->setText("error: must be float");        // output error if input was invalid
         }
 
-        float y = inputY->text().toFloat(&validInput);
+        float y = inputY->text().toFloat(&validInput);  // save inputY in y, also save if the input was valid in validInput
         if(!validInput)
         {
-            inputY->setText("error: must be float");
+            inputY->setText("error: must be float");        // output error if input was invalid
         }
 
-        float height = inputHeight->text().toFloat(&validInput);
+        float height = inputHeight->text().toFloat(&validInput);    // save inputHeight in height, also save if the input was valid in validInput
         if(!validInput)
         {
-            inputHeight->setText("error: must be float");
+            inputHeight->setText("error: must be float");               // output error if input was invalid
         }
 
-        int speed = inputSpeed->text().toInt(&validInput);
+        int speed = inputSpeed->text().toInt(&validInput);  // save inputSpeed in speed, also save if the input was valid in validInput
         if(!validInput)
         {
-            inputSpeed->setText("error: must be int");
+            inputSpeed->setText("error: must be int");          // output error if input was invalid
         }
 
-        labelO->setText("\n\n\n");
-        startButton->setText("Flying");
-        startButton->setEnabled(false);
+        labelO->setText("\n\n\n");                      // print "\n\n\n" in output box (reset it)
+        startButton->setText("Flying");                 // print "Flying" in button
+        startButton->setEnabled(false);                 // make button not available
 
-        vthread->startUfo(x, y, height, speed);
+        vthread->startUfo(x, y, height, speed);         // call startUfo with vthread object
+    }
+
+    void updateWindow(const std::vector<float> position)
+    {
+        QString output = "Flight completed\nPosition:\n" + QString::number(position[0]) + " | " + QString::number(position[1]) + " | " + QString::number(position[2]);  // combine output stirng
+        labelO->setText(output);        // print the string in output box
+        startButton->setText("Start");  // print "Start" in button
+        startButton->setEnabled(true);  // make button available
     }
 
 private:

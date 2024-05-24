@@ -9,13 +9,22 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow()
+    {
+        QIcon icon("D:/daten/Informatik/repos/fah5625/GP_praktikum/Aufgabe5/thi_icon.png");
+        setWindowTitle("Ufo");
+        setWindowIcon(icon);
+        mainwidget = new MainWidget(this);
+        setCentralWidget(mainwidget);
+    }
 
-    ~MainWindow();
+    ~MainWindow()
+    {
+        delete mainwidget;
+    }
 
 private:
     MainWidget *mainwidget;
-    std::string text;
 };
 
 #endif // UI_WINDOW_H

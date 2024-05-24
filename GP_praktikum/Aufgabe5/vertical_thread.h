@@ -1,12 +1,14 @@
 #ifndef vertical_thread_h
 #define vertical_thread_h
 
-#include "ufo.h"
 #include "vertical.h"
 #include <thread>
+#include <QObject>
 
-class VerticalThread 
+class VerticalThread : public QObject
 {
+    Q_OBJECT
+
 private:
     std::thread* flyThread = nullptr;
     Vertical* vert;
@@ -17,6 +19,7 @@ private:
     {
         vert->flyToDest(x, y, height, speed);       // fly vert to given destination
         isVertFlying = false;                       // destination reached, vert is not flying anymore
+        emit stopped(vert->getPosition());          // send signal that flight is done
     }
 public:
     //constructor
@@ -53,6 +56,9 @@ public:
     {
         return isVertFlying;
     }
+
+signals:
+    void stopped(std::vector<float>);               // signal that the flight is done
 
 };
 #endif

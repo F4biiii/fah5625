@@ -11,7 +11,6 @@ CONFIG+=c++2a
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += ballistic.cpp \
-    main.cpp \
     route.cpp \
     ufo.cpp \
     ufosim.cpp \

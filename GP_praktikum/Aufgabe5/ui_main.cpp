@@ -1,18 +1,10 @@
+#include <QtWidgets/QApplication>
 #include "ui_window.h"
 
-MainWindow::MainWindow()
+int main(int argc, char* argv[])
 {
-    QIcon icon("../layout/thi_icon.png");
-    setWindowTitle("Ufo");
-    setWindowIcon(icon);
-    resize(200,0);
-    mainwidget = new MainWidget(this);
-    setCentralWidget(mainwidget);
-
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+    return app.exec();
 }
-
-MainWindow::~MainWindow()
-{
-    delete mainwidget;
-}
-
