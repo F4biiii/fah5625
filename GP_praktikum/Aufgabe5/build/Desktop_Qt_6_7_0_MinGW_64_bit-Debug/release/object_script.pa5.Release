@@ -1,0 +1,10 @@
+release/ballistic.o
+release/main.o
+release/route.o
+release/ufo.o
+release/ufosim.o
+release/ui_main.o
+release/vertical.o
+release/vertical_thread.o
+release/moc_ui_widget.o
+release/moc_ui_window.o

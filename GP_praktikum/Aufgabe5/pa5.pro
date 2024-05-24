@@ -11,6 +11,7 @@ CONFIG+=c++2a
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += ballistic.cpp \
+    main.cpp \
     route.cpp \
     ufo.cpp \
     ufosim.cpp \
@@ -24,8 +25,11 @@ HEADERS += ballistic.h \
     ufo.h \
     ufosim.h \
     ui_widget.h \
+    ui_widget.h \
+    ui_window.h \
     ui_window.h \
     vertical.h \
     vertical_thread.h
+
 
 DISTFILES +=

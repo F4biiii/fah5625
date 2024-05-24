@@ -1,0 +1,10 @@
+debug/ballistic.o
+debug/main.o
+debug/route.o
+debug/ufo.o
+debug/ufosim.o
+debug/ui_main.o
+debug/vertical.o
+debug/vertical_thread.o
+debug/moc_ui_widget.o
+debug/moc_ui_window.o
