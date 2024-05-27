@@ -60,13 +60,16 @@ public:
 
     ~MainWidget()
     {
+        delete vthread;
         delete layoutGrid;
+        delete startButton;
         delete inputSpeed;
         delete inputHeight;
         delete inputY;
         delete inputX;
-        delete labelS;
+        delete labelO;
         delete labelH;
+        delete labelS;
         delete labelY;
         delete labelX;
     }
@@ -101,16 +104,23 @@ private slots:
             inputSpeed->setText("error: must be int");          // output error if input was invalid
         }
 
-        labelO->setText("\n\n\n");                      // print "\n\n\n" in output box (reset it)
-        startButton->setText("Flying");                 // print "Flying" in button
-        startButton->setEnabled(false);                 // make button not available
+        if(validInput)                                      // only fly if input was valid
+        {
+            labelO->setText("\n\n\n");                      // print "\n\n\n" in output box (reset it)
+            startButton->setText("Flying");                 // print "Flying" in button
+            startButton->setEnabled(false);                 // make button not available
 
-        vthread->startUfo(x, y, height, speed);         // call startUfo with vthread object
+            vthread->startUfo(x, y, height, speed);         // call startUfo with vthread object
+        }
     }
 
     void updateWindow(const std::vector<float> position)
     {
-        QString output = "Flight completed\nPosition:\n" + QString::number(position[0]) + " | " + QString::number(position[1]) + " | " + QString::number(position[2]);  // combine output stirng
+        float x = round(position[0]*100) / 100;             // round value to two decimals (shift the two decimals before the comma, cut everything after the comma and shift the two decimals back)
+        float y = round(position[1]*100) / 100;             //
+        float z = round(position[2]*100) / 100;             //
+
+        QString output = "Flight completed\nPosition:\n" + QString::number(x) + " | " + QString::number(y) + " | " + QString::number(z);  // combine output stirng
         labelO->setText(output);        // print the string in output box
         startButton->setText("Start");  // print "Start" in button
         startButton->setEnabled(true);  // make button available
