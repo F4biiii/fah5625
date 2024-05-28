@@ -78,33 +78,36 @@ private slots:
 
     void startUfo()
     {
-        bool validInput = true;                         // is input valid or not
+        bool validInputX = true;                        // is inputX valid or not
+        bool validInputY = true;                        // is inputX valid or not
+        bool validInputH = true;                        // is inputX valid or not
+        bool validInputS = true;                        // is inputX valid or not
 
-        float x = inputX->text().toFloat(&validInput);  // save inputX in x, also save if the input was valid in validInput
-        if(!validInput)
+        float x = inputX->text().toFloat(&validInputX);  // save inputX in x, also save if the input was valid in validInput
+        if(!validInputX)
         {
             inputX->setText("error: must be float");        // output error if input was invalid
         }
 
-        float y = inputY->text().toFloat(&validInput);  // save inputY in y, also save if the input was valid in validInput
-        if(!validInput)
+        float y = inputY->text().toFloat(&validInputY);  // save inputY in y, also save if the input was valid in validInput
+        if(!validInputY)
         {
             inputY->setText("error: must be float");        // output error if input was invalid
         }
 
-        float height = inputHeight->text().toFloat(&validInput);    // save inputHeight in height, also save if the input was valid in validInput
-        if(!validInput)
+        float height = inputHeight->text().toFloat(&validInputH);    // save inputHeight in height, also save if the input was valid in validInput
+        if(!validInputH)
         {
             inputHeight->setText("error: must be float");               // output error if input was invalid
         }
 
-        int speed = inputSpeed->text().toInt(&validInput);  // save inputSpeed in speed, also save if the input was valid in validInput
-        if(!validInput)
+        int speed = inputSpeed->text().toInt(&validInputS);  // save inputSpeed in speed, also save if the input was valid in validInput
+        if(!validInputS)
         {
             inputSpeed->setText("error: must be int");          // output error if input was invalid
         }
 
-        if(validInput)                                      // only fly if input was valid
+        if(validInputX && validInputY && validInputS && validInputH && height > 0 && speed > 0)    // only fly if input was valid
         {
             labelO->setText("\n\n\n");                      // print "\n\n\n" in output box (reset it)
             startButton->setText("Flying");                 // print "Flying" in button
