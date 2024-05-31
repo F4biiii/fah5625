@@ -95,7 +95,8 @@
         "variant": "cpp",
         "stdlib.h": "c",
         "pthread.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "*.ipp": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20"
 }
