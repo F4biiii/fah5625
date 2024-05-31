@@ -8,8 +8,7 @@
 using namespace std;
 
 vector<int> list;           // global empty list
-sem_t sem;
-
+sem_t sem;                  // semaphore
 
 void produce(int data) 
 {
@@ -17,8 +16,7 @@ void produce(int data)
     list.insert(list.begin(), data);            // insert the random number parameter
     sem_post(&sem);                             // thread exits the semaphore, decrease value from 0 to 1    
     cout << "Producer: " << data << endl;   
-    std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds, 0 - 1000000
-    
+    std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds, 0 - 1000000  
 }
 
 void consume() 
@@ -32,8 +30,7 @@ void consume()
     } else {                                                // if list is empty
         
         cout << "Consumer: list empty" << endl << endl;
-    }
-    
+    } 
 }
 
 int main(int argc, char* argv[]) {
