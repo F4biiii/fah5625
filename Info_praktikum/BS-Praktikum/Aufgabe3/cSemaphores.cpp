@@ -2,18 +2,19 @@
 #include <vector>
 #include <thread>
 #include <ctime>
-#include <semaphore>
+#include <semaphore.h>
 #include <chrono>
 
 using namespace std;
 
 vector<int> list;           // global empty list
-std::counting_semaphore<1> sem(1);
+sem_t sem;                  // semaphore
+
 void produce(int data) 
 {
-    sem.acquire();                             // thread enters semaphore, decreases value from 1 to 0
+    sem_wait(&sem);                             // thread enters semaphore, decreases value from 1 to 0
     list.insert(list.begin(), data);            // insert the random number parameter
-    sem.release();                             // thread exits the semaphore, decrease value from 0 to 1    
+    sem_post(&sem);                             // thread exits the semaphore, decrease value from 0 to 1    
     cout << "Producer: " << data << endl;   
     std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds, 0 - 1000000  
 }
@@ -21,10 +22,10 @@ void produce(int data)
 void consume() 
 { 
     if(!list.empty()) {                                     // if list is not empty
-        sem.acquire();                                     // thread enters semaphore, decreases value from 1 to 0
+        sem_wait(&sem);                                     // thread enters semaphore, decreases value from 1 to 0
         int listEnd = list[list.size()-1];                  // safe end of list for output
         list.erase(list.end()-1);                           // delete last element of list
-        sem.release();                                     // thread exits semaphore, increases value from 0 to 1
+        sem_post(&sem);                                     // thread exits semaphore, increases value from 0 to 1
         cout << "Consumer: " << listEnd << endl << endl;
     } else {                                                // if list is empty
         
@@ -47,6 +48,8 @@ int main(int argc, char* argv[]) {
     thread producer[prodConsCount];                 // array for producer threads
     thread consumer[prodConsCount];                 // array for consuemer threads
     
+    sem_init(&sem, 0, 1);                           // initialize semaphore
+
     for(int i = 0; i < prodConsCount; i++)          // create the threads
     {
         data = std::rand() % 1000000;               // get random number between 0 and 1000000
@@ -63,5 +66,7 @@ int main(int argc, char* argv[]) {
         consumer[i].join();        
     }
   
+    sem_destroy(&sem);                              // destroy the semaphore
+
     return 0;
 }
