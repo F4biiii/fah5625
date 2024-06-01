@@ -9,6 +9,7 @@ using namespace std;
 
 vector<int> list;           // global empty list
 std::counting_semaphore<1> sem(1);
+
 void produce(int data) 
 {
     sem.acquire();                             // thread enters semaphore, decreases value from 1 to 0
