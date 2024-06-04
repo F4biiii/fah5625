@@ -7,28 +7,27 @@
 
 using namespace std;
 
-vector<int> list;           // global empty list
+vector<int> list;                               // global empty list
 std::counting_semaphore<1> sem(1);
 
 void produce(int data) 
 {
-    sem.acquire();                             // thread enters semaphore, decreases value from 1 to 0
     list.insert(list.begin(), data);            // insert the random number parameter
     cout << "Producer: " << data << endl;   
     std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds, 0 - 1000000  
-    sem.release();                             // thread exits the semaphore, decrease value from 0 to 1    
+    sem.release();                              // thread exits the semaphore, decrease value from 0 to 1    
 }
 
 void consume() 
 { 
-    sem.acquire();                                     // thread enters semaphore, decreases value from 1 to 0
-    if(!list.empty()) {                                     // if list is not empty
-        list.pop_back();                                        // delete last element of list
-        cout << "Consumer: " << list[list.size()-1] << endl << endl;
-    } else {                                                    // if list is empty
+    if(!list.empty()) {                                                 // if list is not empty
+        int listEnd = list[list.size()-1];
+        list.pop_back();                                                    // delete last element of list
+        cout << "Consumer: " << listEnd << endl << endl;
+    } else {                                                            // if list is empty
         cout << "Consumer: list empty" << endl << endl;
     } 
-    sem.release();                                     // thread exits semaphore, increases value from 0 to 1
+    sem.release();                                                      // thread exits semaphore, increases value from 0 to 1
 }
 
 int main(int argc, char* argv[]) {
@@ -49,7 +48,9 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i < prodConsCount; i++)          // create the threads
     {
         data = std::rand() % 1000000;               // get random number between 0 and 1000000
+        sem.acquire();
         producer[i] = thread(produce, data);
+        sem.acquire();
         consumer[i] = thread(consume);
     }
 
