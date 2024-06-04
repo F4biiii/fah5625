@@ -14,23 +14,21 @@ void produce(int data)
 {
     sem.acquire();                             // thread enters semaphore, decreases value from 1 to 0
     list.insert(list.begin(), data);            // insert the random number parameter
-    sem.release();                             // thread exits the semaphore, decrease value from 0 to 1    
     cout << "Producer: " << data << endl;   
     std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds, 0 - 1000000  
+    sem.release();                             // thread exits the semaphore, decrease value from 0 to 1    
 }
 
 void consume() 
 { 
+    sem.acquire();                                     // thread enters semaphore, decreases value from 1 to 0
     if(!list.empty()) {                                     // if list is not empty
-        sem.acquire();                                     // thread enters semaphore, decreases value from 1 to 0
-        int listEnd = list[list.size()-1];                  // safe end of list for output
-        list.erase(list.end()-1);                           // delete last element of list
-        sem.release();                                     // thread exits semaphore, increases value from 0 to 1
-        cout << "Consumer: " << listEnd << endl << endl;
-    } else {                                                // if list is empty
-        
+        list.pop_back();                                        // delete last element of list
+        cout << "Consumer: " << list[list.size()-1] << endl << endl;
+    } else {                                                    // if list is empty
         cout << "Consumer: list empty" << endl << endl;
     } 
+    sem.release();                                     // thread exits semaphore, increases value from 0 to 1
 }
 
 int main(int argc, char* argv[]) {
@@ -52,9 +50,7 @@ int main(int argc, char* argv[]) {
     {
         data = std::rand() % 1000000;               // get random number between 0 and 1000000
         producer[i] = thread(produce, data);
-        std::this_thread::sleep_for(std::chrono::nanoseconds(10000));
         consumer[i] = thread(consume);
-        std::this_thread::sleep_for(std::chrono::nanoseconds(10000));
     }
 
 
