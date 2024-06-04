@@ -32,7 +32,7 @@ void consume()
 
 int main(int argc, char* argv[]) {
     short prodConsCount;                            // how many producers/consumers shall there be
-    if(argv[1] != 0 && atoi(argv[1]) > 0) {         // programm input
+    if(argv[1] != 0 && atoi(argv[1]) >= 0) {         // programm input
         prodConsCount = atoi(argv[1]);
     }
     else {

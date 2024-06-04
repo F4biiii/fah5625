@@ -27,7 +27,7 @@ void consume()
     if(!list.empty()) {                                                 // if list is not empty
         int listEnd = list[list.size()-1];
         list.pop_back();                                                    // delete last element of list
-        cout << "Consumer: " << listEnd << endl << endl;3
+        cout << "Consumer: " << listEnd << endl << endl;
     } else {                                                            // if list is empty
         cout << "Consumer: list empty" << endl << endl;
     } 
@@ -36,7 +36,7 @@ void consume()
 
 int main(int argc, char* argv[]) {
     short prodConsCount;                            // how many producers/consumers shall there be
-    if(argv[1] != 0 && atoi(argv[1]) > 0) {         // programm input
+    if(argv[1] != 0 && atoi(argv[1]) >= 0) {         // programm input
         prodConsCount = atoi(argv[1]);
     }
     else {

@@ -8,12 +8,13 @@
 using namespace std;
 
 vector<int> list;                               // global empty list
-std::counting_semaphore<1> semInit(1);             // counting semaphore, value 1, initially 1
+std::counting_semaphore<1> semInit(0);             // counting semaphore, value 1, initially 1
 std::counting_semaphore<1> semProt(1);             // counting semaphore, value 1, initially 1
 
 
 void produce(int data) 
 { 
+    semInit.acquire();
     semProt.acquire();
     list.insert(list.begin(), data);            // insert the random number parameter
     cout << "Producer: " << data << endl;   
@@ -24,9 +25,10 @@ void produce(int data)
 
 void consume() 
 { 
+    semInit.acquire();
     semProt.acquire();
     if(!list.empty()) {                                                 // if list is not empty
-        int listEnd = list[list.size()-1];
+        int listEnd = list.back();
         list.pop_back();                                                    // delete last element of list
         cout << "Consumer: " << listEnd << endl << endl;
     } else {                                                            // if list is empty
@@ -47,7 +49,7 @@ int main(int argc, char* argv[]) {
         prodCount = 1;                          // set to 1 if invalid        
         consCount = 1;                          // set to 1 if invalid
     }
-    
+
     int data;
     std::srand(pthread_self());                       // use the time as seed for randomizer
     
@@ -59,14 +61,14 @@ int main(int argc, char* argv[]) {
     {
         data = std::rand() % 1000000;               // get random number between 0 and 1000000
         if (i < prodCount) {
-            semInit.acquire();
             producer[i] = thread(produce, data);
         }
         if (i < consCount) {
-            semInit.acquire();
             consumer[i] = thread(consume);
         }
-    }                        
+    }       
+
+    semInit.release();                 
 
     for(int i = 0; i < prodCount; i++)          // join the threads
     {
