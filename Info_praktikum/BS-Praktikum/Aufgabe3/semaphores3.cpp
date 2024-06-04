@@ -8,25 +8,23 @@
 using namespace std;
 
 vector<int> list;                               // global empty list
-std::counting_semaphore<1> semInit(0);             // counting semaphore, value 1, initially 1
-std::counting_semaphore<1> semA(0);             // counting semaphore, value 1, initially 1
-std::counting_semaphore<1> semB(1);             // counting semaphore, value 1, initially 1
+std::counting_semaphore<1> semInit(1);             // counting semaphore, value 1, initially 1
+std::counting_semaphore<1> semProt(1);             // counting semaphore, value 1, initially 1
 
 
 void produce(int data) 
-{
-    semInit.acquire();
-    semInit.release();
-    semB.acquire();
+{ 
+    semProt.acquire();
     list.insert(list.begin(), data);            // insert the random number parameter
     cout << "Producer: " << data << endl;   
     std::this_thread::sleep_for(std::chrono::nanoseconds(1000000));    // wait for random amout of nanoseconds,  0-1 millisecond
-    semA.release();
+    semProt.release();
+    semInit.release();
 }
 
 void consume() 
 { 
-    semA.acquire();
+    semProt.acquire();
     if(!list.empty()) {                                                 // if list is not empty
         int listEnd = list[list.size()-1];
         list.pop_back();                                                    // delete last element of list
@@ -34,7 +32,8 @@ void consume()
     } else {                                                            // if list is empty
         cout << "Consumer: list empty" << endl << endl;
     }
-    semB.release();
+    semProt.release();
+    semInit.release();
 }
 
 int main(int argc, char* argv[]) {
@@ -55,18 +54,19 @@ int main(int argc, char* argv[]) {
     thread producer[prodCount];                 // array for producer threads
     thread consumer[consCount];                 // array for consuemer threads
 
-    for(int i = 0; i < prodCount; i++)          // create the threads
+    int range = max(prodCount, consCount);
+    for(int i = 0; i < range; i++)          // create the threads
     {
         data = std::rand() % 1000000;               // get random number between 0 and 1000000
-        producer[i] = thread(produce, data);
-    }
-
-    for(int i = 0; i < consCount; i++)          // create the threads
-    {
-        consumer[i] = thread(consume);
-    }
-
-    semInit.release();
+        if (i < prodCount) {
+            semInit.acquire();
+            producer[i] = thread(produce, data);
+        }
+        if (i < consCount) {
+            semInit.acquire();
+            consumer[i] = thread(consume);
+        }
+    }                        
 
     for(int i = 0; i < prodCount; i++)          // join the threads
     {
