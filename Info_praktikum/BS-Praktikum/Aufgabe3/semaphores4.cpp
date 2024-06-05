@@ -25,8 +25,8 @@ void produce(short prodCount)
         std::this_thread::sleep_for(std::chrono::nanoseconds(1000000));    // wait for random amout of nanoseconds,  0-1 millisecond
         prodCount--;
     }
-    semProt.release();                              // leave critical area
     semC.release();                                 // release the consumer 
+    semProt.release();                              // leave critical area
 }
 
 void consume(short consCount) 
