@@ -39,7 +39,7 @@ void consume(short consCount)
         if(!list.empty()) {                          // if list is empty, break
             int listEnd = list.back();
             list.pop_back();                            // delete last element of list
-            cout << "Consumer: " << listEnd << endl;    // print it 
+            cout << "Consumer: " << listEnd << endl << endl;    // print it 
         } else {
             cout << "Consumer: List empty!" << endl;
         }
