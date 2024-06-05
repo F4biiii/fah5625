@@ -19,9 +19,9 @@ void produce(short prodCount)
     semC.acquire();                                 // consumer has to waid
     semProt.acquire();                              // protect the critical area
     int data;
-    std::random_device rd;                          
-    std::mt19937 gen(rd());    
-    std::uniform_int_distribution<> dis(0, 1000000);        // random number gnerator between 0 and 1000000
+    random_device rd;                          
+    mt19937 gen(rd());    
+    uniform_int_distribution<> dis(0, 1000000);        // random number gnerator between 0 and 1000000
     while (prodCount){
         data = dis(gen);                            // get random number 
         list.insert(list.begin(), data);            // insert the random number to list
