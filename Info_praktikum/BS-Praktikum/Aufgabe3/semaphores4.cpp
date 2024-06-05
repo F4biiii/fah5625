@@ -34,9 +34,11 @@ void consume(short consCount)
     semC.acquire();                                 // wait for the producer to release the consumer    
     semProt.acquire();                              // protect the critical area
     while(consCount) {
-        int listEnd = list.back();
-        list.pop_back();                            // delete last element of list
-        cout << "Consumer: " << listEnd << endl;    // print it 
+        if(!list.empty()) {                          // if list is empty, break
+            int listEnd = list.back();
+            list.pop_back();                            // delete last element of list
+            cout << "Consumer: " << listEnd << endl;    // print it 
+        } 
         consCount--;
     }
     semProt.release();                              // leave critical area
