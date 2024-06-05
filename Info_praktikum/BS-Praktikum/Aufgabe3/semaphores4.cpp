@@ -8,7 +8,7 @@ using namespace std;
 
 vector<int> list;                                   // global empty list
 
-std::counting_semaphore<1> semP(0);                 // counting semaphore, value 1, initially 0. Releases the consumer
+std::counting_semaphore<1> semC(0);                 // counting semaphore, value 1, initially 0. Releases the consumer
 std::counting_semaphore<1> semProt(1);              // counting semaphore, value 1, initially 1. Protects critical area
 
 
@@ -26,12 +26,12 @@ void produce(short prodCount)
         prodCount--;
     }
     semProt.release();                              // leave critical area
-    semP.release();                                 // release the consumer 
+    semC.release();                                 // release the consumer 
 }
 
 void consume(short consCount) 
 { 
-    semP.acquire();                                 // wait for the producer to release the consumer    
+    semC.acquire();                                 // wait for the producer to release the consumer    
     semProt.acquire();                              // protect the critical area
     while(consCount) {
         int listEnd = list.back();
@@ -83,13 +83,14 @@ int main(int argc, char* argv[]) {
         consumer[i].join();
     }
 
-    cout << endl << "List: ";
+    cout << endl << "List: ";                   // print the list
     if(list.empty()) {
-        cout << "empty";
+        cout << "empty" << endl;
     } else {
         for(const auto iter: list) {
             cout << iter << " ";
         }
+        cout << endl;
     }
 
     return 0;
