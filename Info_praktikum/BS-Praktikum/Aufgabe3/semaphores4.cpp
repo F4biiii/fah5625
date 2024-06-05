@@ -3,14 +3,15 @@
 #include <thread>
 #include <semaphore>
 #include <chrono>
-#include <functional>
+#include <random>
+
 
 using namespace std;
 
 vector<int> list;                                   // global empty list
 
-std::counting_semaphore<1> semC(1);                 // counting semaphore, value 1, initially 0. Releases the consumer
-std::counting_semaphore<1> semProt(1);              // counting semaphore, value 1, initially 1. Protects critical area
+counting_semaphore<1> semC(1);                 // counting semaphore, value 1, initially 0. Releases the consumer
+counting_semaphore<1> semProt(1);              // counting semaphore, value 1, initially 1. Protects critical area
 
 
 void produce(short prodCount) 
@@ -18,13 +19,14 @@ void produce(short prodCount)
     semC.acquire();                                 // consumer has to waid
     semProt.acquire();                              // protect the critical area
     int data;
-    std::srand(pthread_self());                               // use the threadID as seed for randomizer
-
+    std::random_device rd;                          
+    std::mt19937 gen(rd());    
+    std::uniform_int_distribution<> dis(0, 1000000);        // random number gnerator between 0 and 1000000
     while (prodCount){
-        data = std::rand();               // get random number between 0 and 1000000
+        data = dis(gen);                            // get random number 
         list.insert(list.begin(), data);            // insert the random number to list
         cout << "Producer: " << data << endl;   
-        std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds,  0-1 millisecond
+        this_thread::sleep_for(chrono::nanoseconds(data));    // wait for random amout of nanoseconds,  0-1 millisecond
         prodCount--;
     }
     semProt.release();                              // leave critical area
@@ -79,11 +81,11 @@ int main(int argc, char* argv[]) {
     {
         if (i < prodAmount) 
             producer[i] = thread(produce, prodCount);
-        std::this_thread::sleep_for(std::chrono::nanoseconds(1000000));    // wait for 1 millisecond
+        this_thread::sleep_for(chrono::nanoseconds(1000000));    // wait for 1 millisecond
 
         if (i < consAmount) 
             consumer[i] = thread(consume, consCount);
-        std::this_thread::sleep_for(std::chrono::nanoseconds(1000000));    // wait for 1 millisecond
+        this_thread::sleep_for(chrono::nanoseconds(1000000));    // wait for 1 millisecond
 
     }       
 
