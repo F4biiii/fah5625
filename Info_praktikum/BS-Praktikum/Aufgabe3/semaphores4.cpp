@@ -3,6 +3,7 @@
 #include <thread>
 #include <semaphore>
 #include <chrono>
+#include <functional>
 
 using namespace std;
 
@@ -17,10 +18,10 @@ void produce(short prodCount)
     semC.acquire();                                 // consumer has to waid
     semProt.acquire();                              // protect the critical area
     int data;
-    std::srand(pthread_self());                     // use the threadID as seed for randomizer
+    std::srand(pthread_self());                               // use the threadID as seed for randomizer
 
     while (prodCount){
-        data = std::rand() % 1000000;               // get random number between 0 and 1000000
+        data = std::rand();               // get random number between 0 and 1000000
         list.insert(list.begin(), data);            // insert the random number to list
         cout << "Producer: " << data << endl;   
         std::this_thread::sleep_for(std::chrono::nanoseconds(data));    // wait for random amout of nanoseconds,  0-1 millisecond
