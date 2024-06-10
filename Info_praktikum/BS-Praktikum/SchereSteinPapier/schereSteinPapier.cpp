@@ -49,13 +49,9 @@ void player(int id)
         int res = dis(gen); 
         if(id==1) {
             semP1.acquire();
+            res1 = static_cast<Ergebnis>(res);    
         } else {
             semP2.acquire();
-        }
-
-        if(id==1) {
-            res1 = static_cast<Ergebnis>(res);
-        } else {
             res2 = static_cast<Ergebnis>(res);
         }
         semR.release();
