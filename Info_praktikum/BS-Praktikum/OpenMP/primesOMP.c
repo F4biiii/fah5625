@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
         int countCpy;                                                                   // copy the global variable count in each iteration
         int threadPrimes = 0;                                                           // number of primes found by a single thread
-        while(count < MAX) {                                                            // iterate over given area
+        while(count <= MAX) {                                                            // iterate over given area
             #pragma omp critical                                                        
             {
                 countCpy = count++;                                                     // increase global variable count
