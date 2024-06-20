@@ -113,7 +113,7 @@ string resultString(int a) {
 
 int main() 
 {
-    cout << endl << "Player1" << " vs " << "Player2" << " | (" << 0 << " : " << 0 << ")" << endl << "------------------------" << endl;
+    cout << endl << "Player1" << " vs " << "Player2" << " | (" << 0 << " : " << 0 << ")" << endl << "-----------------------------" << endl;
     thread player1 = thread(player, 1); 
     thread player2 = thread(player, 2); 
     thread refereeT = thread(referee);
