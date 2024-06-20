@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
             {
                 countCpy = count++;                                                     // increase global variable count
             }
-            int prime = 1;                                                              
+            int prime = 1;                                                              // bool, prime or not                                             
             for(int i = 2; i < countCpy; i++) {                                                            
                 if(countCpy % i == 0) {                                                             // if the checked number can be divided by any other number (from 2 - checked number) without rest
                     prime = 0;                                                                      // checked number is no prime
