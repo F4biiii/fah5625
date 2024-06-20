@@ -13,9 +13,10 @@ enum Ergebnis {
     Papier,
 };
 
-counting_semaphore<1> semP1(1);
-counting_semaphore<1> semP2(1);
-counting_semaphore<1> semR(0);
+counting_semaphore semP1(1);
+counting_semaphore semP2(1);
+counting_semaphore semR1(0);
+counting_semaphore semR2(0);
 
 
 
@@ -44,24 +45,26 @@ void player(int id)
 {   
     random_device rd;                          
     mt19937 gen(rd());    
-    uniform_int_distribution<> dis(0, 2);        // random number gnerator between 0 and 2
+    uniform_int_distribution<> dis(0, 2);        // random number gnerator (0-2)
     while(gameCount < 50 && player1Count < 3 && player2Count < 3) {
         int res = dis(gen); 
         if(id==1) {
             semP1.acquire();
             res1 = static_cast<Ergebnis>(res);    
+            semR1.release();
         } else {
             semP2.acquire();
             res2 = static_cast<Ergebnis>(res);
+            semR2.release();
         }
-        semR.release();
     }
 }
 
 void referee() 
 {   
-    semR.acquire();
     while(gameCount < 50 && player1Count < 3 && player2Count < 3) {
+        semR1.acquire();
+        semR2.acquire();
         if(res1 == res2) {}                                         // do nothing if equal
             else if(res1 == 0 && res2 == 2){                        // schere vs papier 
                 player1Count++;

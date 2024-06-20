@@ -1,3 +1,5 @@
+//gcc -Wall -fopenmp primesOMP.c -o pr.exe
+//export OMP_NUM_THREADS=16
 #include <stdio.h>
 #include <omp.h>
 
