@@ -5,7 +5,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QGridLayout>
 
-#define N 3
+#define N 6
 
 class MainWidget : public QWidget
 {
