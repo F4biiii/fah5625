@@ -1,5 +1,7 @@
 #include "rectangle.h"
 
+#include <iostream>
+
 Rectangle::Rectangle(const int pXCoord, const int pYCoord, const int pHeight, const int pWidth) : GraphObj(pXCoord, pYCoord) {
     height = pHeight;
     width = pWidth;

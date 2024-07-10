@@ -1,5 +1,8 @@
 #include "line.h"
 
+#include <iostream>
+#include <cmath>
+
 Line::Line(const int pXCoord, const int pYCoord, const int pEndX, const int pEndY) : GraphObj(pXCoord, pXCoord) {
     endX = pEndX;
     endY = pEndY;

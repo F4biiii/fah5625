@@ -5,13 +5,13 @@
 
 int main() {
 
-    Line l1(8, 9, 14, 89);
-    l1.draw();
-    std::cout << "Area: " << l1.area() << std::endl;
-
-    Rectangle rec1(5, 5, 5, 5);
-    rec1.draw();
-    std::cout << "Area: " << rec1.area() << std::endl;
-
-    return 0;
+    Line line(0, 0, 5, 5);
+    Line line2(0, 0, -5, -5);
+    Rectangle rect(0, 0, 10, 10);
+    std::vector<GraphObj*> objs = { &line, &line2, &rect };
+    for (auto fp: objs)
+    {
+        std::cout << "area: " << fp->area() << '\n' << "draw: ";
+        fp->draw();
+    }  
 }
