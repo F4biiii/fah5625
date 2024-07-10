@@ -15,6 +15,9 @@ private:
 
     void run()
     {
+        mtx.lock();
+        std::cout << "\nsending message " << number << ": ";
+        mtx.unlock();
         for (; countdown >= 0; countdown--)
         {
             mtx.lock();
@@ -22,6 +25,7 @@ private:
             mtx.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(r()%200));
         }
+       
     }
 
 public:
