@@ -15,9 +15,6 @@ private:
 
     void run()
     {
-        mtx.lock();
-        std::cout << "\nsending message " << number << ": ";
-        mtx.unlock();
         for (; countdown >= 0; countdown--)
         {
             mtx.lock();
