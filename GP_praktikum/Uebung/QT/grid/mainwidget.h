@@ -16,7 +16,7 @@ public:
     MainWidget(QMainWindow *parent = nullptr): QWidget(parent)
     {
         edit = new QLineEdit();
-        button = new QPushButton("Click");
+        button = new QPushButton();
         label = new QLabel();
         label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
         grid = new QGridLayout();
