@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -49,6 +50,15 @@ SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim7;
 
+osThreadId defaultTaskHandle;
+osThreadId producerHandle;
+uint32_t producerBuffer[ 128 ];
+osStaticThreadDef_t producerControlBlock;
+osThreadId consumerHandle;
+uint32_t consumerBuffer[ 128 ];
+osStaticThreadDef_t consumerControlBlock;
+osMessageQId hinwegHandle;
+osMessageQId rueckwegHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -60,7 +70,9 @@ static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM7_Init(void);
-void MX_USB_HOST_Process(void);
+void StartDefaultTask(void const * argument);
+void StartProducer(void const * argument);
+void StartConsumer(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -103,18 +115,63 @@ int main(void)
   MX_I2C1_Init();
   MX_I2S3_Init();
   MX_SPI1_Init();
-  MX_USB_HOST_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* definition and creation of hinweg */
+  osMessageQDef(hinweg, 16, uint16_t);
+  hinwegHandle = osMessageCreate(osMessageQ(hinweg), NULL);
+
+  /* definition and creation of rueckweg */
+  osMessageQDef(rueckweg, 16, uint16_t);
+  rueckwegHandle = osMessageCreate(osMessageQ(rueckweg), NULL);
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of producer */
+  osThreadStaticDef(producer, StartProducer, osPriorityIdle, 0, 128, producerBuffer, &producerControlBlock);
+  producerHandle = osThreadCreate(osThread(producer), NULL);
+
+  /* definition and creation of consumer */
+  osThreadStaticDef(consumer, StartConsumer, osPriorityIdle, 0, 128, consumerBuffer, &consumerControlBlock);
+  consumerHandle = osThreadCreate(osThread(consumer), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-    MX_USB_HOST_Process();
 
     /* USER CODE BEGIN 3 */
   }
@@ -409,6 +466,63 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const * argument)
+{
+  /* init code for USB_HOST */
+  MX_USB_HOST_Init();
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_StartProducer */
+/**
+* @brief Function implementing the producer thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartProducer */
+void StartProducer(void const * argument)
+{
+  /* USER CODE BEGIN StartProducer */
+  /* Infinite loop */
+  int i;
+  for(i = 0; i < 10; i++)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartProducer */
+}
+
+/* USER CODE BEGIN Header_StartConsumer */
+/**
+* @brief Function implementing the consumer thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartConsumer */
+void StartConsumer(void const * argument)
+{
+  /* USER CODE BEGIN StartConsumer */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartConsumer */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
