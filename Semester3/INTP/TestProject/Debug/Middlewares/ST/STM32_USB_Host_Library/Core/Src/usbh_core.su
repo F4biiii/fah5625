@@ -1,4 +1,4 @@
-../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:95:20:USBH_Init	80	static
+../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:95:20:USBH_Init	24	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:177:20:USBH_DeInit	16	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:220:27:DeInitStateMachine	24	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:266:20:USBH_RegisterClass	24	static
@@ -19,5 +19,5 @@
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1264:9:USBH_IsPortEnabled	16	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1276:20:USBH_LL_Connect	16	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1302:20:USBH_LL_Disconnect	16	static
-../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1336:13:USBH_Process_OS	32	static
+../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1350:13:USBH_Process_OS	24	static
 ../Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c:1373:20:USBH_LL_NotifyURBChange	16	static

@@ -27,6 +27,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -46,6 +47,8 @@ I2C_HandleTypeDef hi2c1;
 
 I2S_HandleTypeDef hi2s3;
 
+RNG_HandleTypeDef hrng;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim7;
@@ -56,6 +59,40 @@ const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for producer */
+osThreadId_t producerHandle;
+uint32_t producerBuffer[ 128 ];
+osStaticThreadDef_t producerControlBlock;
+const osThreadAttr_t producer_attributes = {
+  .name = "producer",
+  .cb_mem = &producerControlBlock,
+  .cb_size = sizeof(producerControlBlock),
+  .stack_mem = &producerBuffer[0],
+  .stack_size = sizeof(producerBuffer),
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for consumer */
+osThreadId_t consumerHandle;
+uint32_t consumerBuffer[ 128 ];
+osStaticThreadDef_t consumerControlBlock;
+const osThreadAttr_t consumer_attributes = {
+  .name = "consumer",
+  .cb_mem = &consumerControlBlock,
+  .cb_size = sizeof(consumerControlBlock),
+  .stack_mem = &consumerBuffer[0],
+  .stack_size = sizeof(consumerBuffer),
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for hinweg */
+osMessageQueueId_t hinwegHandle;
+const osMessageQueueAttr_t hinweg_attributes = {
+  .name = "hinweg"
+};
+/* Definitions for rueckweg */
+osMessageQueueId_t rueckwegHandle;
+const osMessageQueueAttr_t rueckweg_attributes = {
+  .name = "rueckweg"
 };
 /* Definitions for swTimer */
 osTimerId_t swTimerHandle;
@@ -73,7 +110,10 @@ static void MX_I2C1_Init(void);
 static void MX_I2S3_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_RNG_Init(void);
 void StartDefaultTask(void *argument);
+void StartProducer(void *argument);
+void StartConsumer(void *argument);
 void Callback01(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -118,6 +158,7 @@ int main(void)
   MX_I2S3_Init();
   MX_SPI1_Init();
   MX_TIM7_Init();
+  MX_RNG_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -139,7 +180,17 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+  osStatus_t mySWTimer;
+  mySWTimer = osTimerStart(swTimerHandle, 100);
+  if (mySWTimer == osOK) { /* I hate warnings */ }
   /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* creation of hinweg */
+  hinwegHandle = osMessageQueueNew (16, sizeof(uint16_t), &hinweg_attributes);
+
+  /* creation of rueckweg */
+  rueckwegHandle = osMessageQueueNew (16, sizeof(uint16_t), &rueckweg_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -148,6 +199,12 @@ int main(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* creation of producer */
+  producerHandle = osThreadNew(StartProducer, NULL, &producer_attributes);
+
+  /* creation of consumer */
+  consumerHandle = osThreadNew(StartConsumer, NULL, &consumer_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -287,6 +344,32 @@ static void MX_I2S3_Init(void)
 }
 
 /**
+  * @brief RNG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RNG_Init(void)
+{
+
+  /* USER CODE BEGIN RNG_Init 0 */
+
+  /* USER CODE END RNG_Init 0 */
+
+  /* USER CODE BEGIN RNG_Init 1 */
+
+  /* USER CODE END RNG_Init 1 */
+  hrng.Instance = RNG;
+  if (HAL_RNG_Init(&hrng) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RNG_Init 2 */
+
+  /* USER CODE END RNG_Init 2 */
+
+}
+
+/**
   * @brief SPI1 Initialization Function
   * @param None
   * @retval None
@@ -342,10 +425,10 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 82;
+  htim7.Init.Prescaler = 8399;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 999;
-  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim7.Init.Period = 2000;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
     Error_Handler();
@@ -357,7 +440,7 @@ static void MX_TIM7_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM7_Init 2 */
-
+  HAL_TIM_Base_Start_IT(&htim7);
   /* USER CODE END TIM7_Init 2 */
 
 }
@@ -487,11 +570,58 @@ void StartDefaultTask(void *argument)
   /* USER CODE END 5 */
 }
 
+/* USER CODE BEGIN Header_StartProducer */
+/**
+* @brief Function implementing the producer thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartProducer */
+void StartProducer(void *argument)
+{
+  /* USER CODE BEGIN StartProducer */
+  /* Infinite loop */
+  uint32_t randInt;
+  uint32_t myRandInt;
+  for(;;)
+  {
+	HAL_RNG_GenerateRandomNumber(&hrng, &randInt);
+	myRandInt = randInt % 10;
+
+	osMessageQueuePut(hinwegHandle, &myRandInt, 0, osWaitForever);
+
+	if(myRandInt == 0) {
+		float result;
+		osMessageQueueGet(rueckwegHandle, &result, 0, osWaitForever);
+	}
+	osDelay(1);
+  }
+  /* USER CODE END StartProducer */
+}
+
+/* USER CODE BEGIN Header_StartConsumer */
+/**
+* @brief Function implementing the consumer thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartConsumer */
+void StartConsumer(void *argument)
+{
+  /* USER CODE BEGIN StartConsumer */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartConsumer */
+}
+
 /* Callback01 function */
 void Callback01(void *argument)
 {
   /* USER CODE BEGIN Callback01 */
-
+	//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
   /* USER CODE END Callback01 */
 }
 
@@ -506,7 +636,9 @@ void Callback01(void *argument)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-
+	if (htim->Instance == TIM7) {
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+	  }
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM6) {
     HAL_IncTick();
