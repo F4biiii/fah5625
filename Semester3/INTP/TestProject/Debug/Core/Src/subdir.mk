@@ -14,6 +14,9 @@ C_SRCS += \
 ../Core/Src/sysmem.c \
 ../Core/Src/system_stm32f4xx.c 
 
+O_SRCS += \
+../Core/Src/display_simple.o 
+
 OBJS += \
 ./Core/Src/freertos.o \
 ./Core/Src/main.o \

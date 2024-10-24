@@ -1,17 +1,37 @@
-14:39:59 **** Incremental Build of configuration Debug for project TestProject ****
+14:43:02 **** Incremental Build of configuration Debug for project TestProject ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../USB_HOST/App -I../USB_HOST/Target -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
-arm-none-eabi-gcc -o "TestProject.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\daten\Informatik\repos\fah5625\Semester3\INTP\TestProject\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TestProject.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+../Core/Src/main.c: In function 'StartProducer':
+../Core/Src/main.c:590:45: warning: passing argument 2 of 'HAL_RNG_GenerateRandomNumber' from incompatible pointer type [-Wincompatible-pointer-types]
+  590 |         HAL_RNG_GenerateRandomNumber(&hrng, &randInt);
+      |                                             ^~~~~~~~
+      |                                             |
+      |                                             uint16_t * {aka short unsigned int *}
+In file included from ../Core/Inc/stm32f4xx_hal_conf.h:387,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rng.h:305:83: note: expected 'uint32_t *' {aka 'long unsigned int *'} but argument is of type 'uint16_t *' {aka 'short unsigned int *'}
+  305 | HAL_StatusTypeDef HAL_RNG_GenerateRandomNumber(RNG_HandleTypeDef *hrng, uint32_t *random32bit);
+      |                                                                         ~~~~~~~~~~^~~~~~~~~~~
+../Core/Src/main.c:598:49: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'int' [-Wformat=]
+  598 |                 sprintf(buffer2, "Mittelwert: %ld", result);
+      |                                               ~~^   ~~~~~~
+      |                                                 |   |
+      |                                                 |   int
+      |                                                 long int
+      |                                               %d
+arm-none-eabi-gcc -o "TestProject.elf" @"objects.list" D:/daten/Informatik/repos/fah5625/Semester3/INTP/TestProject/Core/Src/display_simple.o  -mcpu=cortex-m4 -T"D:\daten\Informatik\repos\fah5625\Semester3\INTP\TestProject\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TestProject.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: TestProject.elf
  
 arm-none-eabi-size  TestProject.elf 
 arm-none-eabi-objdump -h -S TestProject.elf  > "TestProject.list"
    text	   data	    bss	    dec	    hex	filename
-  53100	    128	  24640	  77868	  1302c	TestProject.elf
+  68824	  10748	  24644	 104216	  19718	TestProject.elf
 Finished building: default.size.stdout
  
 Finished building: TestProject.list
  
 
-14:40:00 Build Finished. 0 errors, 0 warnings. (took 1s.369ms)
+14:43:04 Build Finished. 0 errors, 2 warnings. (took 1s.235ms)
 

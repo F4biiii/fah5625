@@ -3,7 +3,7 @@
 # Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
-USER_OBJS :=
+USER_OBJS := D:/daten/Informatik/repos/fah5625/Semester3/INTP/TestProject/Core/Src/display_simple.o
 
 LIBS :=
 
