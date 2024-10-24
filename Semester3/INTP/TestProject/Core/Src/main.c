@@ -123,7 +123,8 @@ void Callback01(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint32_t swTimerCount = 0;
+uint32_t hwTimerCount = 0;
 /* USER CODE END 0 */
 
 /**
@@ -189,10 +190,10 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of hinweg */
-  hinwegHandle = osMessageQueueNew (32, sizeof(uint16_t), &hinweg_attributes);
+  hinwegHandle = osMessageQueueNew (16, sizeof(uint16_t), &hinweg_attributes);
 
   /* creation of rueckweg */
-  rueckwegHandle = osMessageQueueNew (32, sizeof(uint16_t), &rueckweg_attributes);
+  rueckwegHandle = osMessageQueueNew (16, sizeof(uint16_t), &rueckweg_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -565,8 +566,12 @@ void StartDefaultTask(void *argument)
 	osDelay(100);
 	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)) {
 		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+		LCD_ClearDisplay( RED );
+		LCD_WriteString( 10, 50, WHITE, RED, "Taster: gedrueckt");
 	} else {
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
+		LCD_ClearDisplay( RED );
+		LCD_WriteString( 10, 50, WHITE, RED, "Taster: nicht gedrueckt");
 	}
   }
   /* USER CODE END 5 */
@@ -585,7 +590,7 @@ void StartProducer(void *argument)
   /* Infinite loop */
   uint16_t randInt;
   uint16_t myRandInt;
-  for(;;)
+  while( 1 )
   {
 	HAL_RNG_GenerateRandomNumber(&hrng, &randInt);
 	myRandInt = randInt % 10;
@@ -595,7 +600,7 @@ void StartProducer(void *argument)
 		uint16_t result;
 		osMessageQueueGet(rueckwegHandle, &result, 0, osWaitForever);
 		char buffer2[50];
-		sprintf(buffer2, "Mittelwert: %ld", result);
+		sprintf(buffer2, "Mittelwert: %d", result);
 		LCD_ClearDisplay( RED );
 		LCD_WriteString( 10, 10, WHITE, RED, buffer2);
 	}
@@ -619,14 +624,18 @@ void StartConsumer(void *argument)
   uint32_t amount = 0;
   uint32_t count = 0;
   uint16_t mittelwert = 0;
-  for(;;)
+  while( 1 )
   {
 	osMessageQueueGet(hinwegHandle, &number, 0, osWaitForever);
 	if(number != 0) {
 		amount += number;
 		count++;
 	} else {
-		mittelwert = amount/count;
+		if(count != 0) {
+			mittelwert = amount/count;
+		} else {
+			mittelwert = 0;
+		}
 		osMessageQueuePut(rueckwegHandle, &mittelwert, 0, osWaitForever);
 		amount = 0;
 		count = 0;
@@ -641,6 +650,7 @@ void StartConsumer(void *argument)
 void Callback01(void *argument)
 {
   /* USER CODE BEGIN Callback01 */
+	swTimerCount++;
 	//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
   /* USER CODE END Callback01 */
 }
@@ -657,8 +667,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 	if (htim->Instance == TIM7) {
-		//LCD_ClearDisplay( RED );
-		//LCD_WriteString( 10, 10, WHITE, RED, "Schnitzel mit Pommes!");
+		hwTimerCount++;
 		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
 	  }
   /* USER CODE END Callback 0 */
